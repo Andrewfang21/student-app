@@ -31,9 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
 
       Provider.of<AppStateProvider>(context, listen: false)
-          .setCurrentUser(currentUser);
-      Provider.of<AppStateProvider>(context)
-          .setActivePageName(getPageString(PageName.Balance.toString()));
+        ..setCurrentUser(currentUser)
+        ..setActivePageName(PageName.Balance.toString());
 
       while (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();

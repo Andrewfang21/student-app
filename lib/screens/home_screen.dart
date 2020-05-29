@@ -1,15 +1,12 @@
-import "dart:math";
-
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/screens/balance_screen.dart";
+import "package:student_app/screens/schedule_screen.dart";
 import "package:student_app/models/user.dart";
 import 'package:student_app/utils.dart';
 import "package:student_app/enums.dart";
-
-enum ActivePageName { Balance }
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -17,87 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Widget> _navigationViews = [];
-  User currentUser;
-
   bool _shouldLogout = false;
-  bool _isInit = true;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_isInit) {
-      currentUser = Provider.of<AppStateProvider>(context, listen: false)
-          .getCurrentUser();
-
-      final String activePageName =
-          Provider.of<AppStateProvider>(context, listen: false)
-              .getActivePageName();
-
-      _navigationViews = <Widget>[
-        UserAccountsDrawerHeader(
-          accountName: Text(
-            currentUser.displayName,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          accountEmail: Text(
-            currentUser.email.replaceFirst(
-              currentUser.email[0],
-              currentUser.email[0].toUpperCase(),
-            ),
-          ),
-          currentAccountPicture: CircleAvatar(
-            backgroundImage: NetworkImage(currentUser.photoUrl),
-          ),
-        ),
-        ListTile(
-          title: Text(
-            "Balance",
-            style: activePageName == getPageString(PageName.Balance.toString())
-                ? TextStyle(fontWeight: FontWeight.bold)
-                : null,
-          ),
-          dense: true,
-          leading: const Icon(Icons.account_balance_wallet),
-          selected:
-              activePageName == getPageString(PageName.Balance.toString()),
-          onTap: () => print("Balance tile is pressed"),
-        ),
-        Divider(),
-        ListTile(
-          title: Text(
-            "Schedule",
-            style: activePageName == getPageString(PageName.Schedule.toString())
-                ? TextStyle(fontWeight: FontWeight.bold)
-                : null,
-          ),
-          dense: true,
-          leading: const Icon(Icons.calendar_today),
-          selected:
-              activePageName == getPageString(PageName.Schedule.toString()),
-          onTap: () => print("Schedule tile is pressed"),
-        ),
-        Divider(),
-        ListTile(
-          title: Text("Logout"),
-          dense: true,
-          leading: const Icon(Icons.exit_to_app),
-          onTap: () {
-            _handleLogout().then((_) async {
-              if (_shouldLogout) {
-                await FirebaseAuth.instance.signOut();
-                Provider.of<AppStateProvider>(context, listen: false)
-                    .deleteCurrentUser();
-                Navigator.of(context)
-                    .pushReplacementNamed(Routes.LoginScreen.toString());
-              }
-            });
-          },
-        ),
-        Divider(),
-      ];
-    }
-  }
 
   Future<bool> _handleLogout() {
     return showDialog(
@@ -125,23 +42,105 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final Color themeColor = Theme.of(context).primaryColor;
+  List<Widget> _drawerNavigationViews(AppStateProvider appState) {
+    final User currentUser = appState.getCurrentUser();
+    final String activePageName = appState.getActivePageName();
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      body: Builder(
-        builder: (context) => BalanceScreen(currentUser: currentUser),
-      ),
-      drawer: Theme(
-        data: Theme.of(context).copyWith(backgroundColor: themeColor),
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: _navigationViews.toList(),
+    return [
+      UserAccountsDrawerHeader(
+        accountName: Text(
+          currentUser.displayName,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        accountEmail: Text(
+          currentUser.email.replaceFirst(
+            currentUser.email[0],
+            currentUser.email[0].toUpperCase(),
           ),
         ),
+        currentAccountPicture: CircleAvatar(
+          backgroundImage: NetworkImage(currentUser.photoUrl),
+        ),
+      ),
+      ListTile(
+        title: Text(
+          "Balance",
+          style: isSame(activePageName, PageName.Balance.toString())
+              ? TextStyle(fontWeight: FontWeight.bold)
+              : null,
+        ),
+        dense: true,
+        leading: const Icon(Icons.account_balance_wallet),
+        selected: isSame(activePageName, PageName.Balance.toString()),
+        onTap: () {
+          if (activePageName != "Balance")
+            appState.setActivePageName(PageName.Balance.toString());
+          Navigator.of(context).pop();
+        },
+      ),
+      Divider(),
+      ListTile(
+        title: Text(
+          "Schedule",
+          style: isSame(activePageName, PageName.Schedule.toString())
+              ? TextStyle(fontWeight: FontWeight.bold)
+              : null,
+        ),
+        dense: true,
+        leading: const Icon(Icons.calendar_today),
+        selected: isSame(activePageName, PageName.Schedule.toString()),
+        onTap: () {
+          if (activePageName != "Schedule")
+            appState.setActivePageName(PageName.Schedule.toString());
+          Navigator.of(context).pop();
+        },
+      ),
+      Divider(),
+      ListTile(
+        title: Text("Logout"),
+        dense: true,
+        leading: const Icon(Icons.exit_to_app),
+        onTap: () {
+          _handleLogout().then((_) async {
+            if (_shouldLogout) {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context)
+                  .pushReplacementNamed(Routes.LoginScreen.toString());
+            }
+          });
+        },
+      ),
+      Divider(),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final User _currentUser =
+        Provider.of<AppStateProvider>(context).getCurrentUser();
+    final String _activePageName =
+        Provider.of<AppStateProvider>(context).getActivePageName();
+    final Color _themeColor = Theme.of(context).primaryColor;
+
+    return Consumer<AppStateProvider>(
+      builder: (context, appState, child) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          body: child,
+          drawer: Theme(
+              data: Theme.of(context).copyWith(backgroundColor: _themeColor),
+              child: Drawer(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: _drawerNavigationViews(appState),
+                ),
+              )),
+        );
+      },
+      child: Builder(
+        builder: isSame(_activePageName, PageName.Balance.toString())
+            ? (context) => BalanceScreen(currentUser: _currentUser)
+            : (context) => ScheduleScreen(),
       ),
     );
   }

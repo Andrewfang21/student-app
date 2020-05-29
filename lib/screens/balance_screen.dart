@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/widgets/time_series_chart.dart";
 import "package:student_app/models/user.dart";
 
@@ -30,40 +31,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(
-            width: deviceWidth,
-            decoration: BoxDecoration(
-              color: themeColor,
-              border: Border.all(color: themeColor),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 30.0,
-                left: 5.0,
-                right: 15.0,
-              ),
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    alignment: Alignment.centerLeft,
-                    icon: Icon(Icons.menu),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                    color: Colors.black87,
-                    iconSize: 30.0,
-                  ),
-                  SizedBox(width: 10.0),
-                  Text(
-                    "Balance",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
+          CustomizedAppBar(title: "Balance"),
           Stack(
             children: <Widget>[
               ClipPath(

@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:student_app/models/user.dart";
+import "package:student_app/utils.dart";
 
 class AppStateProvider with ChangeNotifier {
   User _currentUser;
@@ -15,12 +16,10 @@ class AppStateProvider with ChangeNotifier {
     );
   }
 
-  void deleteCurrentUser() => this._currentUser = null;
-
   User getCurrentUser() => this._currentUser;
 
   void setActivePageName(String activePageName) {
-    this._activePageName = activePageName;
+    this._activePageName = getPageString(activePageName);
     notifyListeners();
   }
 

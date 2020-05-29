@@ -25,9 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
       if (currentUser != null) {
         Provider.of<AppStateProvider>(context, listen: false)
-            .setCurrentUser(currentUser);
-        Provider.of<AppStateProvider>(context, listen: false)
-            .setActivePageName(getPageString(PageName.Balance.toString()));
+          ..setCurrentUser(currentUser)
+          ..setActivePageName(PageName.Balance.toString());
 
         Navigator.of(context)
             .pushReplacementNamed(Routes.HomeScreen.toString());
