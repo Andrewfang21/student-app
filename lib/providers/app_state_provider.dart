@@ -19,7 +19,7 @@ class AppStateProvider with ChangeNotifier {
   User getCurrentUser() => this._currentUser;
 
   void setActivePageName(String activePageName) {
-    this._activePageName = getPageString(activePageName);
+    this._activePageName = parseEnumString(activePageName);
     notifyListeners();
   }
 

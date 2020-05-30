@@ -1,25 +1,40 @@
+import "dart:math";
+
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:provider/provider.dart";
+import "package:student_app/screens/balance_timeline_screen.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/widgets/time_series_chart.dart";
+import "package:student_app/providers/transaction_provider.dart";
 import "package:student_app/models/user.dart";
+import "package:student_app/models/transaction.dart";
 
-class BalanceScreen extends StatefulWidget {
+class BalanceHomeScreen extends StatefulWidget {
   final User currentUser;
 
-  BalanceScreen({
+  BalanceHomeScreen({
     Key key,
     this.currentUser,
   }) : super(key: key);
 
   @override
-  _BalanceScreenState createState() => _BalanceScreenState(currentUser);
+  _BalanceHomeScreenState createState() => _BalanceHomeScreenState(currentUser);
 }
 
-class _BalanceScreenState extends State<BalanceScreen> {
+class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
   GlobalKey<ScaffoldState> scaffoldKey;
+  List<Transaction> transactions;
   final User currentUser;
 
-  _BalanceScreenState(this.currentUser);
+  _BalanceHomeScreenState(this.currentUser);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    transactions = Provider.of<TransactionProvider>(context, listen: false)
+        .getTransactions();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +134,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.arrow_forward),
+                                icon: Icon(Icons.chevron_right),
                                 onPressed: () => print("button pressed"),
                               )
                             ],
@@ -129,10 +144,128 @@ class _BalanceScreenState extends State<BalanceScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  width: deviceWidth,
+                  margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        "Your Recent Transactions",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.centerRight,
+                          child: RaisedButton.icon(
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BalanceTimelineScreen(
+                                    transactions: transactions),
+                              ),
+                            ),
+                            icon: Icon(Icons.info_outline),
+                            label: Text("See More"),
+                            elevation: 0.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            child: hasNoTransactions(transactions)
+                ? Center(
+                    child: Container(
+                      width: deviceWidth,
+                      child: Text(
+                        "You have no recorded transactions",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: min(transactions.length, 5),
+                    itemBuilder: transactionCardBuilder,
+                  ),
+            margin: const EdgeInsets.symmetric(vertical: 10.0),
+            height: 180,
+          ),
         ],
+      ),
+    );
+  }
+
+  bool hasNoTransactions(List<Transaction> transactions) =>
+      transactions.length == 0;
+
+  Widget transactionCardBuilder(BuildContext context, int index) {
+    final Transaction transaction = transactions[index];
+
+    return Container(
+      height: 100,
+      width: 160.0,
+      child: Card(
+        elevation: 2.0,
+        child: Column(
+          children: <Widget>[
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: const Radius.circular(4.0),
+                topRight: const Radius.circular(4.0),
+              ),
+              child: Image(
+                height: 100,
+                width: 160,
+                fit: BoxFit.fill,
+                image: AssetImage(transaction.isIncome
+                    ? "assets/images/income.jpg"
+                    : "assets/images/expense.jpg"),
+              ),
+            ),
+            ListTile(
+              dense: true,
+              title: Text(
+                transaction.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Container(
+                margin: const EdgeInsets.only(top: 5.0),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.only(right: 5.0),
+                      child: Icon(Icons.attach_money),
+                    ),
+                    Expanded(
+                      child: Text(
+                        "HKD ${NumberFormat('#,##0.00', 'en_US').format(transaction.amount)}",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

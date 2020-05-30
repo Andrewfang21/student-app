@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
+import "package:student_app/providers/transaction_provider.dart";
 import "package:student_app/screens/home_screen.dart";
 import "package:student_app/screens/login_screen.dart";
 import "package:student_app/screens/splash_screen.dart";
@@ -17,7 +18,8 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AppStateProvider())
+        ChangeNotifierProvider(create: (context) => AppStateProvider()),
+        ChangeNotifierProvider(create: (context) => TransactionProvider()),
       ],
       child: MaterialApp(
         title: "StudentApp",
@@ -38,7 +40,7 @@ class MyApp extends StatelessWidget {
             800: Color(0xFFDF9E1A),
             900: Color(0xFFCD8A05),
           }),
-          fontFamily: "Open Sans",
+          fontFamily: "Signika",
         ),
         home: SplashScreen(),
         routes: <String, WidgetBuilder>{

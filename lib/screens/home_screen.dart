@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
-import "package:student_app/screens/balance_screen.dart";
+import "package:student_app/screens/balance_home_screen.dart";
 import "package:student_app/screens/schedule_screen.dart";
 import "package:student_app/models/user.dart";
 import 'package:student_app/utils.dart';
@@ -114,6 +114,23 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
+  FloatingActionButton customizedFloatingActionButton(String activePageName) {
+    if (activePageName == "Balance") {
+      return FloatingActionButton(
+        onPressed: () {
+          print("This is balance floating action button");
+        },
+        child: Icon(Icons.add),
+      );
+    }
+    return FloatingActionButton(
+      onPressed: () {
+        print("This is schedule floating action button");
+      },
+      child: Icon(Icons.settings_backup_restore),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final User _currentUser =
@@ -128,18 +145,20 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Theme.of(context).backgroundColor,
           body: child,
           drawer: Theme(
-              data: Theme.of(context).copyWith(backgroundColor: _themeColor),
-              child: Drawer(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: _drawerNavigationViews(appState),
-                ),
-              )),
+            data: Theme.of(context).copyWith(backgroundColor: _themeColor),
+            child: Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: _drawerNavigationViews(appState),
+              ),
+            ),
+          ),
+          floatingActionButton: customizedFloatingActionButton(_activePageName),
         );
       },
       child: Builder(
         builder: isSame(_activePageName, PageName.Balance.toString())
-            ? (context) => BalanceScreen(currentUser: _currentUser)
+            ? (context) => BalanceHomeScreen(currentUser: _currentUser)
             : (context) => ScheduleScreen(),
       ),
     );
