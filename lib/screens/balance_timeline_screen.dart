@@ -1,36 +1,33 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
+import "package:provider/provider.dart";
 import "package:timeline_list/timeline.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_preference_screen.dart";
+import "package:student_app/providers/transaction_provider.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/utils.dart";
 
 class BalanceTimelineScreen extends StatefulWidget {
-  final List<Transaction> transactions;
-
-  BalanceTimelineScreen({
-    Key key,
-    @required this.transactions,
-  }) : super(key: key);
-
-  @override
   _BalanceTimelineScreenState createState() => _BalanceTimelineScreenState();
 }
 
 class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
+  List<Transaction> _transactions = [];
+  bool _isInit = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      _transactions =
+          Provider.of<TransactionProvider>(context, listen: false).transactions;
+      _isInit = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _pages = [
-      widget.transactions.length == 0
-          ? Center(child: Text("You have no recorded transactions"))
-          : Container(
-              child: timelineModel(TimelinePosition.Left),
-              margin: const EdgeInsets.symmetric(horizontal: 10.0),
-            ),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Transactions History"),
@@ -45,19 +42,35 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
         ],
       ),
       backgroundColor: Theme.of(context).backgroundColor,
-      body: PageView(children: _pages),
+      body: Consumer<TransactionProvider>(
+        builder: (_, transactionsRecord, child) {
+          _transactions = transactionsRecord.transactions;
+          return PageView(
+            children: <Widget>[
+              transactionsRecord.transactionsCount == 0
+                  ? Center(
+                      child: Text("You have no recorded transactions"),
+                    )
+                  : Container(
+                      child: timelineModel(TimelinePosition.Left),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                    ),
+            ],
+          );
+        },
+      ),
     );
   }
 
   Widget timelineModel(TimelinePosition position) => Timeline.builder(
         itemBuilder: timelineBuilder,
-        itemCount: widget.transactions.length,
+        itemCount: _transactions.length,
         physics: ClampingScrollPhysics(),
         position: position,
       );
 
   TimelineModel timelineBuilder(BuildContext context, int index) {
-    final Transaction transaction = widget.transactions[index];
+    final Transaction transaction = _transactions[index];
 
     return TimelineModel(
       GestureDetector(
@@ -120,9 +133,8 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                DateFormat(
-                                  "E, yyyy-MM-dd",
-                                ).format(transaction.date),
+                                Transaction.transactionDateAndDayFormat
+                                    .format(transaction.date),
                               ),
                             ),
                           ],
@@ -138,7 +150,7 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                "HKD ${NumberFormat('#,##0.00', 'en_US').format(transaction.amount)}",
+                                "HKD ${Transaction.currencyFormat.format(transaction.amount)}",
                               ),
                             ),
                           ],
@@ -164,7 +176,7 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
         ),
       ),
       isFirst: index == 0,
-      isLast: index == widget.transactions.length,
+      isLast: index == _transactions.length,
       icon: Icon(getCategoryIcon(transaction.category)),
       iconBackground: Theme.of(context).accentColor,
     );

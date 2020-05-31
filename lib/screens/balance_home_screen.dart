@@ -32,8 +32,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    transactions = Provider.of<TransactionProvider>(context, listen: false)
-        .getTransactions();
+    transactions = Provider.of<TransactionProvider>(context).transactions;
   }
 
   @override
@@ -170,8 +169,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                           child: RaisedButton.icon(
                             onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => BalanceTimelineScreen(
-                                    transactions: transactions),
+                                builder: (_) => BalanceTimelineScreen(),
                               ),
                             ),
                             icon: Icon(Icons.info_outline),
@@ -197,10 +195,13 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                       ),
                     ),
                   )
-                : ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: min(transactions.length, 5),
-                    itemBuilder: transactionCardBuilder,
+                : Consumer<TransactionProvider>(
+                    builder: (_, transactionsData, child) {
+                      return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: min(transactionsData.transactionsCount, 5),
+                          itemBuilder: transactionCardBuilder);
+                    },
                   ),
             margin: const EdgeInsets.symmetric(vertical: 10.0),
             height: 180,

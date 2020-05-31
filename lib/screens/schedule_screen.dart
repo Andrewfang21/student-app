@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import 'package:student_app/widgets/customized_app_bar.dart';
+import "package:student_app/widgets/customized_app_bar.dart";
 
 class ScheduleScreen extends StatelessWidget {
   @override

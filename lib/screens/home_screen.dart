@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/screens/balance_home_screen.dart";
 import "package:student_app/screens/schedule_screen.dart";
 import "package:student_app/models/user.dart";
-import 'package:student_app/utils.dart';
+import "package:student_app/utils.dart";
 import "package:student_app/enums.dart";
 
 class HomeScreen extends StatefulWidget {
@@ -52,12 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           currentUser.displayName,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        accountEmail: Text(
-          currentUser.email.replaceFirst(
-            currentUser.email[0],
-            currentUser.email[0].toUpperCase(),
-          ),
-        ),
+        accountEmail: Text(currentUser.email),
         currentAccountPicture: CircleAvatar(
           backgroundImage: NetworkImage(currentUser.photoUrl),
         ),
@@ -133,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: use shared preference instead
     final User _currentUser =
         Provider.of<AppStateProvider>(context).getCurrentUser();
     final String _activePageName =

@@ -5,7 +5,6 @@ import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/enums.dart";
 import "package:student_app/services.dart";
-import "package:student_app/utils.dart";
 
 class LoginScreen extends StatefulWidget {
   @override

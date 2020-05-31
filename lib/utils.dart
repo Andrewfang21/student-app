@@ -1,14 +1,12 @@
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 
-String parseEnumString(String page) {
-  return page.split('.')[1];
-}
+String parseEnumString(String page) => page.split(".")[1];
 
-bool isSame(String pageName, String pageNameEnum) {
-  return pageName == parseEnumString(pageNameEnum);
-}
+bool isSame(String pageName, String pageNameEnum) =>
+    pageName == parseEnumString(pageNameEnum);
 
-const Map<String, dynamic> iconMapper = {
+const Map<String, dynamic> categories = {
   "Entertainment": Icons.gamepad,
   "Gift": Icons.card_giftcard,
   "Hostel": Icons.hotel,
@@ -20,4 +18,4 @@ const Map<String, dynamic> iconMapper = {
   "Others": Icons.folder,
 };
 
-IconData getCategoryIcon(String iconString) => iconMapper[iconString];
+IconData getCategoryIcon(String iconString) => categories[iconString];

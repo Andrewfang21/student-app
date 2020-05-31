@@ -5,7 +5,6 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/enums.dart";
-import "package:student_app/utils.dart";
 
 class SplashScreen extends StatefulWidget {
   @override

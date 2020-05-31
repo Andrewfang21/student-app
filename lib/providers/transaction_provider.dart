@@ -1,13 +1,24 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:student_app/models/transaction.dart";
-import "package:student_app/enums.dart";
 
 class TransactionProvider with ChangeNotifier {
-  List<Transaction> getTransactions() => [..._transactions];
+  List<Transaction> get transactions => [..._transactions];
+
+  int get transactionsCount => _transactions.length;
+
+  void editTransaction(String id, Transaction updatedTransaction) {
+    final index = _transactions.indexWhere(
+      (transaction) => transaction.id == id,
+    );
+    if (index >= 0) {
+      _transactions[index] = updatedTransaction;
+      notifyListeners();
+    }
+  }
 }
 
-final DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm");
+final DateFormat dateFormat = Transaction.transactionTimestampFormat;
 
 List<Transaction> _transactions = [
   Transaction(
