@@ -2,9 +2,12 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:google_sign_in/google_sign_in.dart";
 import "package:provider/provider.dart";
+import 'package:student_app/models/user.dart';
 import "package:student_app/providers/app_state_provider.dart";
+import "package:student_app/providers/user_provider.dart";
+import "package:student_app/services/api.dart";
+import "package:student_app/services/user_shared_preference.dart";
 import "package:student_app/enums.dart";
-import "package:student_app/services.dart";
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -26,12 +29,21 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       setState(() => _isLoading = true);
-      FirebaseUser currentUser = await signInFirebaseWithGoogle(googleSignIn);
-      setState(() => _isLoading = false);
 
-      Provider.of<AppStateProvider>(context, listen: false)
-        ..setCurrentUser(currentUser)
-        ..setActivePageName(PageName.Balance.toString());
+      FirebaseUser firebaseUser = await signInFirebaseWithGoogle(googleSignIn);
+      User currentUser = User(
+        uid: firebaseUser.uid,
+        displayName: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photoUrl: firebaseUser.photoUrl,
+      );
+      UserSharedPreference.setActiveUser(currentUser);
+      Provider.of<UserProvider>(context, listen: false).currentUser =
+          currentUser;
+      Provider.of<AppStateProvider>(context, listen: false).activePageName =
+          PageName.Balance.toString();
+
+      setState(() => _isLoading = false);
 
       while (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
@@ -48,6 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("login rebuild");
+
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Builder(

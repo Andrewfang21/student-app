@@ -134,7 +134,29 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                               ),
                               IconButton(
                                 icon: Icon(Icons.chevron_right),
-                                onPressed: () => print("button pressed"),
+                                onPressed: () async {
+                                  // final User savedUser =
+                                  //     await UserSharedPreference.getActiveUser(
+                                  //         "user");
+                                  // print(savedUser.displayName);
+
+                                  // await UserSharedPreference.save(
+                                  //   "user",
+                                  //   currentUser.toJson(),
+                                  // );
+
+                                  // final savedUser =
+                                  //     await UserSharedPreference.read("user");
+                                  // print(savedUser["name"]);
+
+                                  //   final Map<String, dynamic> json =
+                                  //       currentUser.toJson();
+                                  //   print(json);
+
+                                  //   final User anotherUser = User.fromJson(json);
+                                  //   print(anotherUser.displayName);
+                                },
+                                // // onPressed: () => print("button pressed"),
                               )
                             ],
                           ),

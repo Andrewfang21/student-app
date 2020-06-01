@@ -2,8 +2,10 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
+import "package:student_app/providers/user_provider.dart";
 import "package:student_app/screens/balance_home_screen.dart";
 import "package:student_app/screens/schedule_screen.dart";
+import "package:student_app/services/user_shared_preference.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/utils.dart";
 import "package:student_app/enums.dart";
@@ -14,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  User currentUser;
   bool _shouldLogout = false;
 
   Future<bool> _handleLogout() {
@@ -24,8 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
         content: Text("Do you want to logout from the application?"),
         actions: <Widget>[
           FlatButton(
-            onPressed: () {
+            onPressed: () async {
               setState(() => _shouldLogout = true);
+              await UserSharedPreference.deleteActiveUser();
+
               Navigator.of(context).pop();
             },
             child: Text("Yes"),
@@ -43,8 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Widget> _drawerNavigationViews(AppStateProvider appState) {
-    final User currentUser = appState.getCurrentUser();
-    final String activePageName = appState.getActivePageName();
+    final String activePageName = appState.activePageName;
 
     return [
       UserAccountsDrawerHeader(
@@ -69,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selected: isSame(activePageName, PageName.Balance.toString()),
         onTap: () {
           if (activePageName != "Balance")
-            appState.setActivePageName(PageName.Balance.toString());
+            appState.activePageName = PageName.Balance.toString();
           Navigator.of(context).pop();
         },
       ),
@@ -86,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selected: isSame(activePageName, PageName.Schedule.toString()),
         onTap: () {
           if (activePageName != "Schedule")
-            appState.setActivePageName(PageName.Schedule.toString());
+            appState.activePageName = PageName.Balance.toString();
           Navigator.of(context).pop();
         },
       ),
@@ -128,12 +132,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: use shared preference instead
-    final User _currentUser =
-        Provider.of<AppStateProvider>(context).getCurrentUser();
     final String _activePageName =
-        Provider.of<AppStateProvider>(context).getActivePageName();
+        Provider.of<AppStateProvider>(context, listen: false).activePageName;
     final Color _themeColor = Theme.of(context).primaryColor;
+
+    currentUser = Provider.of<UserProvider>(context, listen: false).currentUser;
+
+    print("home screen rebuild");
 
     return Consumer<AppStateProvider>(
       builder: (context, appState, child) {
@@ -154,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Builder(
         builder: isSame(_activePageName, PageName.Balance.toString())
-            ? (context) => BalanceHomeScreen(currentUser: _currentUser)
+            ? (context) => BalanceHomeScreen(currentUser: currentUser)
             : (context) => ScheduleScreen(),
       ),
     );

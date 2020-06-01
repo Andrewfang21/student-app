@@ -4,6 +4,9 @@ import "package:flutter/material.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
+import "package:student_app/providers/user_provider.dart";
+import "package:student_app/services/user_shared_preference.dart";
+import "package:student_app/models/user.dart";
 import "package:student_app/enums.dart";
 
 class SplashScreen extends StatefulWidget {
@@ -20,12 +23,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _initTimer() {
     Timer(Duration(seconds: 3), () async {
-      FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+      final FirebaseUser firebaseUser =
+          await FirebaseAuth.instance.currentUser();
+      final User currentUser = await UserSharedPreference.getActiveUser();
 
-      if (currentUser != null) {
-        Provider.of<AppStateProvider>(context, listen: false)
-          ..setCurrentUser(currentUser)
-          ..setActivePageName(PageName.Balance.toString());
+      if (firebaseUser != null && currentUser != null) {
+        Provider.of<UserProvider>(context, listen: false).currentUser =
+            currentUser;
+        Provider.of<AppStateProvider>(context, listen: false).activePageName =
+            PageName.Balance.toString();
 
         Navigator.of(context)
             .pushReplacementNamed(Routes.HomeScreen.toString());

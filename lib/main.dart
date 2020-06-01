@@ -3,6 +3,7 @@ import "package:flutter/services.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/providers/transaction_provider.dart";
+import "package:student_app/providers/user_provider.dart";
 import "package:student_app/screens/home_screen.dart";
 import "package:student_app/screens/login_screen.dart";
 import "package:student_app/screens/splash_screen.dart";
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => AppStateProvider()),
         ChangeNotifierProvider(create: (context) => TransactionProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(
         title: "StudentApp",

@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
+import "package:provider/provider.dart";
 import "package:student_app/widgets/radio_field.dart";
+import "package:student_app/providers/transaction_provider.dart";
 
 class BalancePreferenceScreen extends StatefulWidget {
   @override
@@ -8,6 +10,15 @@ class BalancePreferenceScreen extends StatefulWidget {
 }
 
 class _BalancePreferenceScreenState extends State<BalancePreferenceScreen> {
+  void _handleSave(BuildContext context) {
+    Provider.of<TransactionProvider>(context, listen: false)
+        .sortTransactionByRule(
+      _transactionFields[_selectedTransactionField.index].text,
+      _selectedTransactionOrder.index == 0 ? false : true,
+    );
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,10 +27,7 @@ class _BalancePreferenceScreenState extends State<BalancePreferenceScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.save),
-            onPressed: () {
-              print("Button is pressed");
-              Navigator.of(context).pop();
-            },
+            onPressed: () => _handleSave(context),
           )
         ],
       ),
@@ -56,14 +64,14 @@ class _BalancePreferenceScreenState extends State<BalancePreferenceScreen> {
 }
 
 final List<RadioOption> _transactionFields = [
-  RadioOption(index: 1, text: "Transaction Date"),
-  RadioOption(index: 2, text: "Amount"),
-  RadioOption(index: 3, text: "Type"),
+  RadioOption(index: 0, text: "Transaction Date"),
+  RadioOption(index: 1, text: "Amount"),
+  RadioOption(index: 2, text: "Type"),
 ];
 final SelectRadio _selectedTransactionField = SelectRadio(index: 1);
 
 final List<RadioOption> _transactionOrders = [
-  RadioOption(index: 1, text: "Descending"),
-  RadioOption(index: 2, text: "Ascending"),
+  RadioOption(index: 0, text: "Descending"),
+  RadioOption(index: 1, text: "Ascending"),
 ];
 final SelectRadio _selectedTransactionOrder = SelectRadio(index: 1);

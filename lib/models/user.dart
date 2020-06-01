@@ -12,4 +12,17 @@ class User {
     @required this.email,
     @required this.photoUrl,
   });
+
+  User.fromJson(Map<String, dynamic> json)
+      : uid = json["uid"],
+        displayName = json["name"],
+        email = json["email"],
+        photoUrl = json["photoUrl"];
+
+  Map<String, dynamic> toJson() => {
+        "uid": uid,
+        "name": displayName,
+        "email": email,
+        "photoUrl": photoUrl,
+      };
 }

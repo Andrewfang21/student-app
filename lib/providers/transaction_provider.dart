@@ -16,6 +16,29 @@ class TransactionProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void sortTransactionByRule(String rule, bool isAscending) {
+    if (rule == "Transaction Date") {
+      isAscending
+          ? _transactions.sort((x, y) => x.date.isBefore(y.date) ? -1 : 1)
+          : _transactions.sort((x, y) => x.date.isBefore(y.date) ? 1 : -1);
+    } else if (rule == "Amount") {
+      isAscending
+          ? _transactions.sort((x, y) => x.amount.compareTo(y.amount))
+          : _transactions.sort((x, y) => y.amount.compareTo(x.amount));
+    } else if (rule == "Type") {
+      isAscending
+          ? _transactions.sort((x, y) =>
+              (x.isIncome && y.isIncome || !x.isIncome && !y.isIncome)
+                  ? 0
+                  : x.isIncome && !y.isIncome ? 1 : -1)
+          : _transactions.sort((x, y) =>
+              (x.isIncome && y.isIncome || !x.isIncome && !y.isIncome)
+                  ? 0
+                  : x.isIncome && !y.isIncome ? -1 : 11);
+    }
+    notifyListeners();
+  }
 }
 
 final DateFormat dateFormat = Transaction.transactionTimestampFormat;
