@@ -4,7 +4,10 @@ An application for students to help them in managing their daily schedules and e
 
 ## Screenshots
 
-TODO: Attach screenshot images of the application
+<div style="display: flex; align-items: flex-start; justify-content: flex-start;">
+  <img src="screenshots/1.jpg" width="25%">
+  <img style="margin-left: 10px;" src="screenshots/2.jpg" width="25%">
+</div>
 
 ## Features (To Be Implemented):
 

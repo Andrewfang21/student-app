@@ -13,7 +13,7 @@ class BalanceTimelineScreen extends StatefulWidget {
 }
 
 class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
-  List<Transaction> _transactions = [];
+  List<Transaction> _transactions;
   bool _isInit = true;
 
   @override
@@ -47,7 +47,7 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
           _transactions = transactionsRecord.transactions;
           return PageView(
             children: <Widget>[
-              transactionsRecord.transactionsCount == 0
+              transactionsRecord.length == 0
                   ? Center(
                       child: Text("You have no recorded transactions"),
                     )

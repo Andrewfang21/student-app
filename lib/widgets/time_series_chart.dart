@@ -1,62 +1,107 @@
-/// Example of a time series chart with an end points domain axis.
-///
-/// An end points axis generates two ticks, one at each end of the axis range.
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
+import "package:charts_flutter/flutter.dart" as charts;
+import "package:student_app/models/transaction.dart";
+import "package:student_app/utils.dart";
 
-class EndPointsAxisTimeSeriesChart extends StatelessWidget {
+class TimeSeriesTransaction {
+  final DateTime date;
+  double amount;
+
+  TimeSeriesTransaction({@required this.date, @required this.amount});
+
+  void addAmount(double anotherAmount) => this.amount += anotherAmount;
+}
+
+class TimeSeriesChart extends StatelessWidget {
   final List<charts.Series> seriesList;
-  final bool animate;
 
-  EndPointsAxisTimeSeriesChart(this.seriesList, {this.animate});
+  TimeSeriesChart(this.seriesList);
 
-  /// Creates a [TimeSeriesChart] with sample data and no transition.
-  factory EndPointsAxisTimeSeriesChart.withSampleData() {
-    return new EndPointsAxisTimeSeriesChart(
-      _createSampleData(),
-      // Disable animations for image tests.
-      animate: false,
-    );
+  static const String EXPENSE = "Expense";
+  static const String INCOME = "Income";
+
+  static List<TimeSeriesTransaction> serializeTransaction(
+      List<Transaction> transactions, String status) {
+    if (status == EXPENSE) {
+      List<TimeSeriesTransaction> expenses = [];
+      transactions.forEach((transaction) {
+        if (transaction.isIncome) return;
+        if (expenses.isEmpty)
+          expenses.add(TimeSeriesTransaction(
+            date: transaction.date,
+            amount: transaction.amount,
+          ));
+        else if (expenses.isNotEmpty &&
+            !isSameDate(expenses[expenses.length - 1].date, transaction.date))
+          expenses.add(TimeSeriesTransaction(
+              date: transaction.date, amount: transaction.amount));
+        else
+          expenses[expenses.length - 1].addAmount(transaction.amount);
+      });
+
+      return expenses;
+    }
+
+    List<TimeSeriesTransaction> income = [];
+    transactions.forEach((transaction) {
+      if (!transaction.isIncome) return;
+      if (income.isEmpty)
+        income.add(TimeSeriesTransaction(
+          date: transaction.date,
+          amount: transaction.amount,
+        ));
+      else if (income.isNotEmpty &&
+          !isSameDate(income[income.length - 1].date, transaction.date))
+        income.add(TimeSeriesTransaction(
+            date: transaction.date, amount: transaction.amount));
+      else
+        income[income.length - 1].addAmount(transaction.amount);
+    });
+
+    return income;
+  }
+
+  static List<charts.Series<TimeSeriesTransaction, DateTime>> _toList(
+    List<TimeSeriesTransaction> income,
+    List<TimeSeriesTransaction> expenses,
+  ) {
+    return [
+      charts.Series<TimeSeriesTransaction, DateTime>(
+        id: "Income",
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (TimeSeriesTransaction transactions, _) => transactions.date,
+        measureFn: (TimeSeriesTransaction transactions, _) =>
+            transactions.amount,
+        data: income,
+      ),
+      charts.Series<TimeSeriesTransaction, DateTime>(
+        id: "Expense",
+        colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
+        domainFn: (TimeSeriesTransaction transactions, _) => transactions.date,
+        measureFn: (TimeSeriesTransaction transactions, _) =>
+            transactions.amount,
+        data: expenses,
+      ),
+    ];
+  }
+
+  factory TimeSeriesChart.withTransactions(List<Transaction> transactions) {
+    transactions.sort((x, y) => x.date.compareTo(y.date));
+
+    final List<TimeSeriesTransaction> expenses =
+        serializeTransaction(transactions, EXPENSE);
+    final List<TimeSeriesTransaction> income =
+        serializeTransaction(transactions, INCOME);
+
+    return TimeSeriesChart(_toList(income, expenses));
   }
 
   @override
   Widget build(BuildContext context) {
-    return new charts.TimeSeriesChart(
+    return charts.TimeSeriesChart(
       seriesList,
-      animate: animate,
-      // Configures an axis spec that is configured to render one tick at each
-      // end of the axis range, anchored "inside" the axis. The start tick label
-      // will be left-aligned with its tick mark, and the end tick label will be
-      // right-aligned with its tick mark.
-      domainAxis: new charts.EndPointsTimeAxisSpec(),
+      animate: true,
+      domainAxis: charts.EndPointsTimeAxisSpec(),
     );
   }
-
-  /// Create one series with sample hard coded data.
-  static List<charts.Series<TimeSeriesSales, DateTime>> _createSampleData() {
-    final data = [
-      new TimeSeriesSales(new DateTime(2017, 9, 19), 5),
-      new TimeSeriesSales(new DateTime(2017, 9, 26), 25),
-      new TimeSeriesSales(new DateTime(2017, 10, 3), 100),
-      new TimeSeriesSales(new DateTime(2017, 10, 10), 75),
-    ];
-
-    return [
-      new charts.Series<TimeSeriesSales, DateTime>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (TimeSeriesSales sales, _) => sales.time,
-        measureFn: (TimeSeriesSales sales, _) => sales.sales,
-        data: data,
-      )
-    ];
-  }
-}
-
-/// Sample time series data type.
-class TimeSeriesSales {
-  final DateTime time;
-  final int sales;
-
-  TimeSeriesSales(this.time, this.sales);
 }

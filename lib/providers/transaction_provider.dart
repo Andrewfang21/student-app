@@ -8,7 +8,7 @@ class TransactionProvider with ChangeNotifier {
   static String currentRule = "Transaction Date";
   static bool isAscending = false;
 
-  int get transactionsCount => _transactions.length;
+  int get length => _transactions.length;
 
   void addTransaction(Transaction newTransaction) {
     _transactions.add(newTransaction);
@@ -71,7 +71,7 @@ List<Transaction> _transactions = [
     description: "Asus Laptop",
     category: "Entertainment",
     amount: 3000.0,
-    date: dateFormat.parse("2020-04-19 21:40"),
+    date: dateFormat.parse("2020-06-01 21:40"),
     isIncome: false,
   ),
   Transaction(
@@ -79,8 +79,8 @@ List<Transaction> _transactions = [
     name: "Computer",
     description: "Alienware",
     category: "Entertainment",
-    amount: 25000.0,
-    date: dateFormat.parse("2020-02-9 11:40"),
+    amount: 2500.0,
+    date: dateFormat.parse("2020-05-31 11:40"),
     isIncome: false,
   ),
   Transaction(
@@ -88,8 +88,8 @@ List<Transaction> _transactions = [
     name: "Part-time Job",
     description: "Waiter Job",
     category: "Work",
-    amount: 15000.0,
-    date: dateFormat.parse("2020-01-9 20:40"),
+    amount: 1500.0,
+    date: dateFormat.parse("2020-05-30 20:40"),
     isIncome: true,
   ),
   Transaction(
@@ -98,7 +98,7 @@ List<Transaction> _transactions = [
     description: "Internship at Google",
     category: "Work",
     amount: 25000.0,
-    date: dateFormat.parse("2019-12-18 11:20"),
+    date: dateFormat.parse("2020-05-29 11:20"),
     isIncome: true,
   ),
   Transaction(
@@ -107,7 +107,7 @@ List<Transaction> _transactions = [
     description: "Lunch",
     category: "Meal",
     amount: 120.0,
-    date: dateFormat.parse("2019-11-19 11:35"),
+    date: dateFormat.parse("2020-05-28 11:35"),
     isIncome: false,
   ),
   Transaction(
@@ -116,7 +116,7 @@ List<Transaction> _transactions = [
     description: "Dinner",
     category: "Meal",
     amount: 220.0,
-    date: dateFormat.parse("2019-11-17 23:35"),
+    date: dateFormat.parse("2020-05-27 23:35"),
     isIncome: false,
   ),
   Transaction(
@@ -125,7 +125,7 @@ List<Transaction> _transactions = [
     description: "Buy PS4",
     category: "Entertainment",
     amount: 3120.0,
-    date: dateFormat.parse("2019-11-15 10:35"),
+    date: dateFormat.parse("2020-05-27 10:35"),
     isIncome: false,
   ),
 ];

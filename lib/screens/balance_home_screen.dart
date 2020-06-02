@@ -1,7 +1,6 @@
 import "dart:math";
 
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_timeline_screen.dart";
@@ -26,21 +25,15 @@ class BalanceHomeScreen extends StatefulWidget {
 class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
   GlobalKey<ScaffoldState> scaffoldKey;
   List<Transaction> transactions;
+
   final User currentUser;
 
   _BalanceHomeScreenState(this.currentUser);
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    transactions = Provider.of<TransactionProvider>(context).transactions;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Color themeColor = Theme.of(context).primaryColor;
-    final double deviceWidth = MediaQuery.of(context).size.width;
-    final double deviceHeight = MediaQuery.of(context).size.height;
+    transactions =
+        Provider.of<TransactionProvider>(context, listen: false).transactions;
 
     return SingleChildScrollView(
       child: Column(
@@ -52,8 +45,9 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
               ClipPath(
                 clipper: CustomShapeClipper(),
                 child: Container(
-                  height: deviceHeight * 0.3,
-                  decoration: BoxDecoration(color: themeColor),
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  decoration:
+                      BoxDecoration(color: Theme.of(context).primaryColor),
                 ),
               ),
               Padding(
@@ -79,8 +73,8 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                   bottom: 10.0,
                 ),
                 child: Container(
-                  width: deviceWidth,
-                  height: 270.0,
+                  width: MediaQuery.of(context).size.width,
+                  height: 260.0,
                   decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(30.0)),
@@ -92,55 +86,78 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                       ]),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(top: 25.0),
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                width: double.infinity,
-                                child: Text(
-                                  "HKD 100",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 30,
+                    child: Consumer<TransactionProvider>(
+                      builder: (_, provider, __) {
+                        transactions = provider.transactions;
+                        double netIncome = .0;
+                        final List<Transaction> recentTransactions =
+                            transactions.where((transaction) {
+                          if (DateTime.now()
+                                  .difference(transaction.date)
+                                  .inDays <=
+                              Duration(days: 7).inDays) {
+                            transaction.isIncome
+                                ? netIncome += transaction.amount
+                                : netIncome -= transaction.amount;
+
+                            return true;
+                          }
+                          return false;
+                        }).toList();
+
+                        return Column(
+                          children: <Widget>[
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(top: 25.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Container(
+                                    width: double.infinity,
+                                    child: Text(
+                                      "HKD ${Transaction.currencyFormat.format(netIncome)}",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 30,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  Container(
+                                    width: double.infinity,
+                                    child: Text(
+                                        "Your net income in the last 7 days"),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                width: double.infinity,
-                                child:
-                                    Text("Your net income in the last 7 days"),
+                            ),
+                            Container(
+                              height: 100,
+                              margin: const EdgeInsets.only(top: 10.0),
+                              child: TimeSeriesChart.withTransactions(
+                                recentTransactions,
                               ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 100,
-                          margin: const EdgeInsets.only(top: 10.0),
-                          child: EndPointsAxisTimeSeriesChart.withSampleData(),
-                        ),
-                        Spacer(),
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 10.0),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  "More Info",
-                                  textAlign: TextAlign.end,
-                                ),
+                            ),
+                            Spacer(),
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 10.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Text(
+                                      "More Info",
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.chevron_right),
+                                    onPressed: () => print("button pressed"),
+                                  )
+                                ],
                               ),
-                              IconButton(
-                                icon: Icon(Icons.chevron_right),
-                                onPressed: () => print("button pressed"),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+                            )
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -153,7 +170,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  width: deviceWidth,
+                  width: MediaQuery.of(context).size.width,
                   margin: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     children: <Widget>[
@@ -186,10 +203,10 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
             ),
           ),
           Container(
-            child: hasNoTransactions(transactions)
+            child: transactions.length == 0
                 ? Center(
                     child: Container(
-                      width: deviceWidth,
+                      width: MediaQuery.of(context).size.width,
                       child: Text(
                         "You have no recorded transactions",
                         textAlign: TextAlign.center,
@@ -197,10 +214,12 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                     ),
                   )
                 : Consumer<TransactionProvider>(
-                    builder: (_, transactionsData, child) {
+                    builder: (_, provider, __) {
+                      transactions = provider.transactions;
+
                       return ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: min(transactionsData.transactionsCount, 5),
+                          itemCount: min(provider.length, 5),
                           itemBuilder: transactionCardBuilder);
                     },
                   ),
@@ -211,9 +230,6 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
       ),
     );
   }
-
-  bool hasNoTransactions(List<Transaction> transactions) =>
-      transactions.length == 0;
 
   Widget transactionCardBuilder(BuildContext context, int index) {
     final Transaction transaction = transactions[index];
@@ -264,7 +280,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          "HKD ${NumberFormat('#,##0.00', 'en_US').format(transaction.amount)}",
+                          "HKD ${Transaction.currencyFormat.format(transaction.amount)}",
                         ),
                       ),
                     ],
