@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
 
 String parseEnumString(String page) => page.split(".")[1];
 

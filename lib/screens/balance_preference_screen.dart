@@ -14,7 +14,7 @@ class _BalancePreferenceScreenState extends State<BalancePreferenceScreen> {
     Provider.of<TransactionProvider>(context, listen: false)
         .sortTransactionByRule(
       _transactionFields[_selectedTransactionField.index].text,
-      _selectedTransactionOrder.index == 0 ? false : true,
+      _selectedTransactionOrder.index == 0 ? true : false,
     );
     Navigator.of(context).pop();
   }
@@ -68,10 +68,10 @@ final List<RadioOption> _transactionFields = [
   RadioOption(index: 1, text: "Amount"),
   RadioOption(index: 2, text: "Type"),
 ];
-final SelectRadio _selectedTransactionField = SelectRadio(index: 1);
+final SelectRadio _selectedTransactionField = SelectRadio(index: 0);
 
 final List<RadioOption> _transactionOrders = [
-  RadioOption(index: 0, text: "Descending"),
-  RadioOption(index: 1, text: "Ascending"),
+  RadioOption(index: 0, text: "Ascending"),
+  RadioOption(index: 1, text: "Descending"),
 ];
 final SelectRadio _selectedTransactionOrder = SelectRadio(index: 1);

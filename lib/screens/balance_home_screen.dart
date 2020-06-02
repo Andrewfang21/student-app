@@ -3,6 +3,7 @@ import "dart:math";
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:provider/provider.dart";
+import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_timeline_screen.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/widgets/time_series_chart.dart";
@@ -134,29 +135,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                               ),
                               IconButton(
                                 icon: Icon(Icons.chevron_right),
-                                onPressed: () async {
-                                  // final User savedUser =
-                                  //     await UserSharedPreference.getActiveUser(
-                                  //         "user");
-                                  // print(savedUser.displayName);
-
-                                  // await UserSharedPreference.save(
-                                  //   "user",
-                                  //   currentUser.toJson(),
-                                  // );
-
-                                  // final savedUser =
-                                  //     await UserSharedPreference.read("user");
-                                  // print(savedUser["name"]);
-
-                                  //   final Map<String, dynamic> json =
-                                  //       currentUser.toJson();
-                                  //   print(json);
-
-                                  //   final User anotherUser = User.fromJson(json);
-                                  //   print(anotherUser.displayName);
-                                },
-                                // // onPressed: () => print("button pressed"),
+                                onPressed: () => print("button pressed"),
                               )
                             ],
                           ),
@@ -242,52 +221,58 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
     return Container(
       height: 100,
       width: 160.0,
-      child: Card(
-        elevation: 2.0,
-        child: Column(
-          children: <Widget>[
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: const Radius.circular(4.0),
-                topRight: const Radius.circular(4.0),
-              ),
-              child: Image(
-                height: 100,
-                width: 160,
-                fit: BoxFit.fill,
-                image: AssetImage(transaction.isIncome
-                    ? "assets/images/income.jpg"
-                    : "assets/images/expense.jpg"),
-              ),
-            ),
-            ListTile(
-              dense: true,
-              title: Text(
-                transaction.name,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) =>
+              BalanceDetailScreen(currentTransaction: transaction),
+        )),
+        child: Card(
+          elevation: 2.0,
+          child: Column(
+            children: <Widget>[
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: const Radius.circular(4.0),
+                  topRight: const Radius.circular(4.0),
                 ),
-                overflow: TextOverflow.ellipsis,
+                child: Image(
+                  height: 100,
+                  width: 160,
+                  fit: BoxFit.fill,
+                  image: AssetImage(transaction.isIncome
+                      ? "assets/images/income.jpg"
+                      : "assets/images/expense.jpg"),
+                ),
               ),
-              subtitle: Container(
-                margin: const EdgeInsets.only(top: 5.0),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      margin: const EdgeInsets.only(right: 5.0),
-                      child: Icon(Icons.attach_money),
-                    ),
-                    Expanded(
-                      child: Text(
-                        "HKD ${NumberFormat('#,##0.00', 'en_US').format(transaction.amount)}",
+              ListTile(
+                dense: true,
+                title: Text(
+                  transaction.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        margin: const EdgeInsets.only(right: 5.0),
+                        child: Icon(Icons.attach_money),
                       ),
-                    ),
-                  ],
+                      Expanded(
+                        child: Text(
+                          "HKD ${NumberFormat('#,##0.00', 'en_US').format(transaction.amount)}",
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

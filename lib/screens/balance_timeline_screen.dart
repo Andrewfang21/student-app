@@ -73,18 +73,31 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
     final Transaction transaction = _transactions[index];
 
     return TimelineModel(
-      GestureDetector(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => BalanceDetailScreen(
-            currentTransaction: transaction,
-          ),
-        )),
-        child: Card(
-          margin: const EdgeInsets.symmetric(vertical: 10.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          clipBehavior: Clip.antiAlias,
+      Card(
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8.0),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => BalanceDetailScreen(
+              currentTransaction: transaction,
+            ),
+          )),
+          onLongPress: () => showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                    content: GestureDetector(
+                      child: Container(child: Text("Delete")),
+                      onTap: () {
+                        Provider.of<TransactionProvider>(context, listen: false)
+                            .deleteTransaction(transaction.id);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  )),
           child: Container(
             width: double.infinity,
             child: Row(

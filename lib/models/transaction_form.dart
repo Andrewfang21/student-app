@@ -9,7 +9,7 @@ class TransactionFormField {
   TransactionFormField({
     controller,
     focusNode,
-    @required this.initialValue,
+    this.initialValue = "",
     @required this.labelText,
   });
 }

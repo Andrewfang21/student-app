@@ -10,7 +10,7 @@ class BalanceDetailScreen extends StatefulWidget {
   final Transaction currentTransaction;
 
   BalanceDetailScreen({
-    @required this.currentTransaction,
+    this.currentTransaction,
   });
 
   @override
@@ -20,15 +20,15 @@ class BalanceDetailScreen extends StatefulWidget {
 class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
   final _formKey = GlobalKey<FormState>();
   final List<RadioOption> _transactionCategoryList = [
-    RadioOption(index: 1, text: "Income"),
-    RadioOption(index: 2, text: "Expense"),
+    RadioOption(index: 0, text: "Income"),
+    RadioOption(index: 1, text: "Expense"),
   ];
 
   List<TransactionButtonField> transactionCategories = [];
   TransactionFormField transactionName;
   TransactionFormField transactionDescription;
   TransactionFormField transactionAmount;
-  Transaction _editedTransaction;
+  Transaction _transaction;
   SelectRadio _selectedCategory;
 
   bool _isLoading = false;
@@ -40,35 +40,43 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
       transactionCategories.add(TransactionButtonField(icon: icon, text: text));
     });
 
-    transactionName = TransactionFormField(
-      initialValue: this.widget.currentTransaction.name,
-      labelText: "Name",
-    );
-    transactionDescription = TransactionFormField(
-      initialValue: this.widget.currentTransaction.description,
-      labelText: "Description",
-    );
-    transactionAmount = TransactionFormField(
-      initialValue: this.widget.currentTransaction.amount.toStringAsFixed(2),
-      labelText: "Amount (in HKD)",
-    );
-
-    _editedTransaction = Transaction()
-      ..clone(
-        this.widget.currentTransaction,
+    if (widget.currentTransaction == null) {
+      transactionName = TransactionFormField(labelText: "Name");
+      transactionDescription = TransactionFormField(labelText: "Description");
+      transactionAmount = TransactionFormField(labelText: "Amount (in HKD)");
+      _transaction = Transaction();
+      _selectedCategory = SelectRadio(index: 0);
+    } else {
+      transactionName = TransactionFormField(
+        initialValue: widget.currentTransaction.name,
+        labelText: "Name",
+      );
+      transactionDescription = TransactionFormField(
+        initialValue: widget.currentTransaction.description,
+        labelText: "Description",
+      );
+      transactionAmount = TransactionFormField(
+        initialValue: widget.currentTransaction.amount.toStringAsFixed(2),
+        labelText: "Amount (in HKD)",
       );
 
-    _selectedCategory = SelectRadio(
-      index: this.widget.currentTransaction.isIncome ? 1 : 2,
-    );
+      _transaction = Transaction()
+        ..clone(
+          widget.currentTransaction,
+        );
+
+      _selectedCategory = SelectRadio(
+        index: widget.currentTransaction.isIncome ? 0 : 1,
+      );
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    transactionName.focusNode.dispose();
-    transactionDescription.focusNode.dispose();
-    transactionAmount.focusNode.dispose();
+    transactionName..focusNode.dispose()..controller.dispose();
+    transactionDescription..focusNode.dispose()..controller.dispose();
+    transactionAmount..focusNode.dispose()..controller.dispose();
   }
 
   Future<void> _saveForm(BuildContext context) async {
@@ -79,18 +87,23 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
 
     // TODO: use try catch
     setState(() => _isLoading = true);
-    if (_editedTransaction.id != null) {
-      _editedTransaction.updateIsIncomeStatus =
-          _selectedCategory.index == 1 ? true : false;
+    if (_transaction.id != null) {
+      _transaction.setIsIncomeStatus =
+          _selectedCategory.index == 0 ? true : false;
 
-      Provider.of<TransactionProvider>(context, listen: false).editTransaction(
-        _editedTransaction.id,
-        _editedTransaction,
-      );
+      if (widget.currentTransaction == null)
+        Provider.of<TransactionProvider>(context, listen: false)
+            .addTransaction(_transaction);
+      else
+        Provider.of<TransactionProvider>(context, listen: false)
+            .editTransaction(_transaction.id, _transaction);
     }
     setState(() => _isLoading = false);
+
     Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text("Transaction edited successfully"),
+      content: widget.currentTransaction == null
+          ? Text("Transaction added successfully")
+          : Text("Transaction edited successfully"),
       duration: Duration(seconds: 2),
     ));
   }
@@ -99,7 +112,9 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit Transaction"),
+        title: widget.currentTransaction == null
+            ? Text("Add Transaction")
+            : Text("Edit Transaction"),
         actions: <Widget>[
           Builder(
             builder: (context) => IconButton(
@@ -133,8 +148,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                             .requestFocus(transactionDescription.focusNode),
                         validator: (value) =>
                             value.isEmpty ? "Name should not be empty" : null,
-                        onSaved: (value) =>
-                            _editedTransaction.updateName = value,
+                        onSaved: (value) => _transaction.setName = value,
                       ),
                       TextFormField(
                         decoration: InputDecoration(
@@ -144,8 +158,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                         keyboardType: TextInputType.multiline,
                         maxLines: 4,
                         focusNode: transactionDescription.focusNode,
-                        onSaved: (value) =>
-                            _editedTransaction.updateDescription = value,
+                        onSaved: (value) => _transaction.setDescription = value,
                       ),
                       TextFormField(
                         decoration: InputDecoration(
@@ -163,8 +176,8 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                             return "Amount should be greater than zero";
                           return null;
                         },
-                        onSaved: (value) => _editedTransaction.updateAmount =
-                            double.parse(value),
+                        onSaved: (value) =>
+                            _transaction.setAmount = double.parse(value),
                       ),
                       _buildFieldTitle("Transaction date"),
                       Container(
@@ -173,7 +186,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                           children: <Widget>[
                             _buildTransactionDateButton(
                               Transaction.transactionDateFormat
-                                  .format(_editedTransaction.date),
+                                  .format(_transaction.date),
                               Icons.date_range,
                               () async {
                                 final DateTime updatedDate =
@@ -184,7 +197,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                             ),
                             _buildTransactionDateButton(
                               Transaction.transactionTimeFormat
-                                  .format(_editedTransaction.date),
+                                  .format(_transaction.date),
                               Icons.access_time,
                               () async {
                                 final TimeOfDay updatedTime =
@@ -199,8 +212,8 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                       _buildFieldTitle("Category"),
                       DropdownButtonFormField(
                         hint: _iconWithText(
-                          _editedTransaction.category,
-                          getCategoryIcon(_editedTransaction.category),
+                          _transaction.category,
+                          getCategoryIcon(_transaction.category),
                         ),
                         items: transactionCategories
                             .map((TransactionButtonField category) {
@@ -211,8 +224,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                         }).toList(),
                         onChanged: (TransactionButtonField selectedCategory) =>
                             setState(
-                          () => _editedTransaction.category =
-                              selectedCategory.text,
+                          () => _transaction.category = selectedCategory.text,
                         ),
                       ),
                       _buildFieldTitle("Status"),
@@ -275,20 +287,20 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
 
   void _updateDate(DateTime updatedDate) {
     setState(
-      () => _editedTransaction.updateTransactionDate = updatedDate,
+      () => _transaction.setTransactionDate = updatedDate,
     );
   }
 
   void _updateTime(TimeOfDay updatedTime) {
     setState(
-      () => _editedTransaction.updateTransactionTime = updatedTime,
+      () => _transaction.setTransactionTime = updatedTime,
     );
   }
 
   Future<DateTime> _showDatePicker(BuildContext context) {
     return showDatePicker(
       context: context,
-      initialDate: _editedTransaction.date,
+      initialDate: _transaction.date,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
@@ -298,8 +310,8 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
     return showTimePicker(
       context: context,
       initialTime: TimeOfDay(
-        hour: _editedTransaction.date.hour,
-        minute: _editedTransaction.date.minute,
+        hour: _transaction.date.hour,
+        minute: _transaction.date.minute,
       ),
     );
   }

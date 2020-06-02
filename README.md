@@ -12,7 +12,7 @@ TODO: Attach screenshot images of the application
 - [ ] CRUD TODO List
 - [ ] Push Notifications to remind their upcoming tasks
 - [ ] Calendars
-- [ ] CRUD List of Expenses
+- [x] CRUD List of Expenses (TODO: Store them using Firestore)
 - [ ] Analytics and Charts Visualization of their expenses
 - [ ] Uploading images (e.g. receipt)
 - [ ] Expenses Alert

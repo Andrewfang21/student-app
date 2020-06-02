@@ -5,7 +5,17 @@ import "package:student_app/models/transaction.dart";
 class TransactionProvider with ChangeNotifier {
   List<Transaction> get transactions => [..._transactions];
 
+  static String currentRule = "Transaction Date";
+  static bool isAscending = false;
+
   int get transactionsCount => _transactions.length;
+
+  void addTransaction(Transaction newTransaction) {
+    _transactions.add(newTransaction);
+    sortTransactionByRule(currentRule, isAscending);
+
+    notifyListeners();
+  }
 
   void editTransaction(String id, Transaction updatedTransaction) {
     final index = _transactions.indexWhere(
@@ -13,8 +23,15 @@ class TransactionProvider with ChangeNotifier {
     );
     if (index >= 0) {
       _transactions[index] = updatedTransaction;
+      sortTransactionByRule(currentRule, isAscending);
+
       notifyListeners();
     }
+  }
+
+  void deleteTransaction(String id) {
+    _transactions.removeWhere((transaction) => transaction.id == id);
+    notifyListeners();
   }
 
   void sortTransactionByRule(String rule, bool isAscending) {
@@ -35,8 +52,12 @@ class TransactionProvider with ChangeNotifier {
           : _transactions.sort((x, y) =>
               (x.isIncome && y.isIncome || !x.isIncome && !y.isIncome)
                   ? 0
-                  : x.isIncome && !y.isIncome ? -1 : 11);
+                  : x.isIncome && !y.isIncome ? -1 : 1);
     }
+
+    currentRule = rule;
+    isAscending = isAscending;
+
     notifyListeners();
   }
 }

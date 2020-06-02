@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/providers/user_provider.dart";
+import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_home_screen.dart";
 import "package:student_app/screens/schedule_screen.dart";
 import "package:student_app/services/user_shared_preference.dart";
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selected: isSame(activePageName, PageName.Schedule.toString()),
         onTap: () {
           if (activePageName != "Schedule")
-            appState.activePageName = PageName.Balance.toString();
+            appState.activePageName = PageName.Schedule.toString();
           Navigator.of(context).pop();
         },
       ),
@@ -116,9 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
   FloatingActionButton customizedFloatingActionButton(String activePageName) {
     if (activePageName == "Balance") {
       return FloatingActionButton(
-        onPressed: () {
-          print("This is balance floating action button");
-        },
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => BalanceDetailScreen(),
+        )),
         child: Icon(Icons.add),
       );
     }
@@ -133,12 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final String _activePageName =
-        Provider.of<AppStateProvider>(context, listen: false).activePageName;
+        Provider.of<AppStateProvider>(context).activePageName;
     final Color _themeColor = Theme.of(context).primaryColor;
 
     currentUser = Provider.of<UserProvider>(context, listen: false).currentUser;
-
-    print("home screen rebuild");
 
     return Consumer<AppStateProvider>(
       builder: (context, appState, child) {

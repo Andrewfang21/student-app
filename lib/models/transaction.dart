@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
+import "package:uuid/uuid.dart";
 
 class Transaction with ChangeNotifier {
   String id;
@@ -17,14 +18,20 @@ class Transaction with ChangeNotifier {
   static NumberFormat currencyFormat = NumberFormat("#,##0.00");
 
   Transaction({
-    this.id,
-    this.name,
-    this.description,
-    this.category,
-    this.amount,
-    this.date,
-    this.isIncome,
-  });
+    id,
+    name,
+    description,
+    category,
+    amount,
+    date,
+    isIncome,
+  })  : this.id = id ?? Uuid().v4(),
+        this.name = name ?? "",
+        this.description = description ?? "",
+        this.category = category ?? "Entertainment",
+        this.amount = amount ?? 0.0,
+        this.date = date ?? DateTime.now(),
+        this.isIncome = isIncome ?? false;
 
   void clone(Transaction transaction) {
     this.id = transaction.id;
@@ -36,23 +43,23 @@ class Transaction with ChangeNotifier {
     this.isIncome = transaction.isIncome;
   }
 
-  set updateName(String name) => this.name = name;
-  set updateAmount(double amount) => this.amount = amount;
-  set updateDescription(String description) => this.description = description;
-  set updateCategory(String category) => this.category = category;
-  set updateTransactionDate(DateTime updatedDate) => this.date = DateTime(
-        updatedDate.year,
-        updatedDate.month,
-        updatedDate.day,
+  set setName(String name) => this.name = name;
+  set setAmount(double amount) => this.amount = amount;
+  set setDescription(String description) => this.description = description;
+  set setCategory(String category) => this.category = category;
+  set setTransactionDate(DateTime newDate) => this.date = DateTime(
+        newDate.year,
+        newDate.month,
+        newDate.day,
         this.date.hour,
         this.date.minute,
       );
-  set updateTransactionTime(TimeOfDay updatedTime) => this.date = DateTime(
+  set setTransactionTime(TimeOfDay newTime) => this.date = DateTime(
         this.date.year,
         this.date.hour,
         this.date.day,
-        updatedTime.hour,
-        updatedTime.minute,
+        newTime.hour,
+        newTime.minute,
       );
-  set updateIsIncomeStatus(bool isIncome) => this.isIncome = isIncome;
+  set setIsIncomeStatus(bool isIncome) => this.isIncome = isIncome;
 }
