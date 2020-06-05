@@ -185,8 +185,9 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             _buildTransactionDateButton(
-                              Transaction.transactionDateFormat
-                                  .format(_transaction.date),
+                              TimeFormatHelper.formatToDateOnly(
+                                _transaction.date,
+                              ),
                               Icons.date_range,
                               () async {
                                 final DateTime updatedDate =
@@ -196,8 +197,9 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                               },
                             ),
                             _buildTransactionDateButton(
-                              Transaction.transactionTimeFormat
-                                  .format(_transaction.date),
+                              TimeFormatHelper.formatToTimeOnly(
+                                _transaction.date,
+                              ),
                               Icons.access_time,
                               () async {
                                 final TimeOfDay updatedTime =
@@ -213,7 +215,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                       DropdownButtonFormField(
                         hint: _iconWithText(
                           _transaction.category,
-                          getCategoryIcon(_transaction.category),
+                          getIconBasedOnCategory(_transaction.category),
                         ),
                         items: transactionCategories
                             .map((TransactionButtonField category) {

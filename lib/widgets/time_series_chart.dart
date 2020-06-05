@@ -3,105 +3,78 @@ import "package:charts_flutter/flutter.dart" as charts;
 import "package:student_app/models/transaction.dart";
 import "package:student_app/utils.dart";
 
-class TimeSeriesTransaction {
-  final DateTime date;
-  double amount;
-
-  TimeSeriesTransaction({@required this.date, @required this.amount});
-
-  void addAmount(double anotherAmount) => this.amount += anotherAmount;
-}
-
 class TimeSeriesChart extends StatelessWidget {
-  final List<charts.Series> seriesList;
+  final List<Transaction> transactions;
+  final int tickerCount;
 
-  TimeSeriesChart(this.seriesList);
+  const TimeSeriesChart({
+    @required this.transactions,
+    @required this.tickerCount,
+  });
 
-  static const String EXPENSE = "Expense";
-  static const String INCOME = "Income";
+  List<charts.Series<TimeSeriesTransaction, DateTime>> _buildSeriesList() {
+    List<charts.Series<TimeSeriesTransaction, DateTime>> list = []
+      ..add(
+        charts.Series<TimeSeriesTransaction, DateTime>(
+            id: TransactionHelper.INCOME,
+            colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+            domainFn: (TimeSeriesTransaction transaction, _) =>
+                transaction.date,
+            measureFn: (TimeSeriesTransaction transaction, _) =>
+                transaction.amount,
+            data: TransactionHelper.getSerializedTransactions(
+              TransactionHelper.filterByStatus(
+                  transactions, TransactionHelper.INCOME),
+            )),
+      )
+      ..add(
+        charts.Series<TimeSeriesTransaction, DateTime>(
+            id: TransactionHelper.EXPENSE,
+            colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
+            domainFn: (TimeSeriesTransaction transaction, _) =>
+                transaction.date,
+            measureFn: (TimeSeriesTransaction transaction, _) =>
+                transaction.amount,
+            data: TransactionHelper.getSerializedTransactions(
+              TransactionHelper.filterByStatus(
+                  transactions, TransactionHelper.EXPENSE),
+            )),
+      );
 
-  static List<TimeSeriesTransaction> serializeTransaction(
-      List<Transaction> transactions, String status) {
-    if (status == EXPENSE) {
-      List<TimeSeriesTransaction> expenses = [];
-      transactions.forEach((transaction) {
-        if (transaction.isIncome) return;
-        if (expenses.isEmpty)
-          expenses.add(TimeSeriesTransaction(
-            date: transaction.date,
-            amount: transaction.amount,
-          ));
-        else if (expenses.isNotEmpty &&
-            !isSameDate(expenses[expenses.length - 1].date, transaction.date))
-          expenses.add(TimeSeriesTransaction(
-              date: transaction.date, amount: transaction.amount));
-        else
-          expenses[expenses.length - 1].addAmount(transaction.amount);
-      });
-
-      return expenses;
-    }
-
-    List<TimeSeriesTransaction> income = [];
-    transactions.forEach((transaction) {
-      if (!transaction.isIncome) return;
-      if (income.isEmpty)
-        income.add(TimeSeriesTransaction(
-          date: transaction.date,
-          amount: transaction.amount,
-        ));
-      else if (income.isNotEmpty &&
-          !isSameDate(income[income.length - 1].date, transaction.date))
-        income.add(TimeSeriesTransaction(
-            date: transaction.date, amount: transaction.amount));
-      else
-        income[income.length - 1].addAmount(transaction.amount);
-    });
-
-    return income;
-  }
-
-  static List<charts.Series<TimeSeriesTransaction, DateTime>> _toList(
-    List<TimeSeriesTransaction> income,
-    List<TimeSeriesTransaction> expenses,
-  ) {
-    return [
-      charts.Series<TimeSeriesTransaction, DateTime>(
-        id: "Income",
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (TimeSeriesTransaction transactions, _) => transactions.date,
-        measureFn: (TimeSeriesTransaction transactions, _) =>
-            transactions.amount,
-        data: income,
-      ),
-      charts.Series<TimeSeriesTransaction, DateTime>(
-        id: "Expense",
-        colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
-        domainFn: (TimeSeriesTransaction transactions, _) => transactions.date,
-        measureFn: (TimeSeriesTransaction transactions, _) =>
-            transactions.amount,
-        data: expenses,
-      ),
-    ];
-  }
-
-  factory TimeSeriesChart.withTransactions(List<Transaction> transactions) {
-    transactions.sort((x, y) => x.date.compareTo(y.date));
-
-    final List<TimeSeriesTransaction> expenses =
-        serializeTransaction(transactions, EXPENSE);
-    final List<TimeSeriesTransaction> income =
-        serializeTransaction(transactions, INCOME);
-
-    return TimeSeriesChart(_toList(income, expenses));
+    return list;
   }
 
   @override
   Widget build(BuildContext context) {
     return charts.TimeSeriesChart(
-      seriesList,
+      _buildSeriesList(),
       animate: true,
-      domainAxis: charts.EndPointsTimeAxisSpec(),
+      domainAxis: charts.DateTimeAxisSpec(
+        tickProviderSpec: charts.DayTickProviderSpec(increments: [1]),
+        tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+          day: charts.TimeFormatterSpec(
+            format: 'dd MMM',
+            transitionFormat: 'dd MMM',
+          ),
+        ),
+        showAxisLine: true,
+      ),
+      primaryMeasureAxis: charts.NumericAxisSpec(
+        tickProviderSpec: charts.BasicNumericTickProviderSpec(
+          desiredTickCount: tickerCount,
+        ),
+        showAxisLine: true,
+      ),
     );
   }
+}
+
+class TimeSeriesTransaction {
+  final DateTime date;
+  final double amount;
+
+  TimeSeriesTransaction({
+    @required this.date,
+    @required this.amount,
+  });
 }

@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
 import "package:uuid/uuid.dart";
 
 class Transaction with ChangeNotifier {
@@ -10,12 +9,6 @@ class Transaction with ChangeNotifier {
   double amount;
   DateTime date;
   bool isIncome;
-
-  static DateFormat transactionDateFormat = DateFormat("dd-MM-yyyy");
-  static DateFormat transactionTimeFormat = DateFormat.Hm();
-  static DateFormat transactionTimestampFormat = DateFormat("yyyy-MM-dd hh:mm");
-  static DateFormat transactionDateAndDayFormat = DateFormat("E, yyyy-MM-dd");
-  static NumberFormat currencyFormat = NumberFormat("#,##0.00");
 
   Transaction({
     id,

@@ -60,8 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("login rebuild");
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Builder(

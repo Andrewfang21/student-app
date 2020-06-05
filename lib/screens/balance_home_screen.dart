@@ -3,12 +3,14 @@ import "dart:math";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
+import "package:student_app/screens/balance_statistic_screen.dart";
 import "package:student_app/screens/balance_timeline_screen.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/widgets/time_series_chart.dart";
 import "package:student_app/providers/transaction_provider.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/models/transaction.dart";
+import "package:student_app/utils.dart";
 
 class BalanceHomeScreen extends StatefulWidget {
   final User currentUser;
@@ -88,22 +90,12 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Consumer<TransactionProvider>(
                       builder: (_, provider, __) {
-                        transactions = provider.transactions;
-                        double netIncome = .0;
-                        final List<Transaction> recentTransactions =
-                            transactions.where((transaction) {
-                          if (DateTime.now()
-                                  .difference(transaction.date)
-                                  .inDays <=
-                              Duration(days: 7).inDays) {
-                            transaction.isIncome
-                                ? netIncome += transaction.amount
-                                : netIncome -= transaction.amount;
-
-                            return true;
-                          }
-                          return false;
-                        }).toList();
+                        final List<Transaction> _recentTransactions =
+                            TransactionHelper.filterByDateRange(
+                                provider.transactions, 7);
+                        final String _netIncome = currencyFormat(
+                          TransactionHelper.getNetIncome(_recentTransactions),
+                        );
 
                         return Column(
                           children: <Widget>[
@@ -115,7 +107,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                                   Container(
                                     width: double.infinity,
                                     child: Text(
-                                      "HKD ${Transaction.currencyFormat.format(netIncome)}",
+                                      "HKD $_netIncome",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 30,
@@ -125,7 +117,8 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                                   Container(
                                     width: double.infinity,
                                     child: Text(
-                                        "Your net income in the last 7 days"),
+                                      "Your net income in the last 7 days",
+                                    ),
                                   ),
                                 ],
                               ),
@@ -133,8 +126,9 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                             Container(
                               height: 100,
                               margin: const EdgeInsets.only(top: 10.0),
-                              child: TimeSeriesChart.withTransactions(
-                                recentTransactions,
+                              child: TimeSeriesChart(
+                                transactions: _recentTransactions,
+                                tickerCount: 5,
                               ),
                             ),
                             Spacer(),
@@ -150,7 +144,12 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                                   ),
                                   IconButton(
                                     icon: Icon(Icons.chevron_right),
-                                    onPressed: () => print("button pressed"),
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            BalanceStatisticScreen(),
+                                      ),
+                                    ),
                                   )
                                 ],
                               ),
@@ -280,7 +279,7 @@ class _BalanceHomeScreenState extends State<BalanceHomeScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          "HKD ${Transaction.currencyFormat.format(transaction.amount)}",
+                          "HKD ${currencyFormat(transaction.amount)}",
                         ),
                       ),
                     ],

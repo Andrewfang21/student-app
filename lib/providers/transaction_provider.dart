@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
 import "package:student_app/models/transaction.dart";
+import 'package:student_app/utils.dart';
 
 class TransactionProvider with ChangeNotifier {
   List<Transaction> get transactions => [..._transactions];
@@ -9,6 +9,16 @@ class TransactionProvider with ChangeNotifier {
   static bool isAscending = false;
 
   int get length => _transactions.length;
+
+  List<Transaction> getTransactionsByDateRange(DateTime left, DateTime right) {
+    return [..._transactions]
+        .where(
+          (transaction) =>
+              transaction.date.isAfter(left) &&
+              transaction.date.isBefore(right.add(Duration(days: 1))),
+        )
+        .toList();
+  }
 
   void addTransaction(Transaction newTransaction) {
     _transactions.add(newTransaction);
@@ -62,8 +72,6 @@ class TransactionProvider with ChangeNotifier {
   }
 }
 
-final DateFormat dateFormat = Transaction.transactionTimestampFormat;
-
 List<Transaction> _transactions = [
   Transaction(
     id: "1",
@@ -71,7 +79,7 @@ List<Transaction> _transactions = [
     description: "Asus Laptop",
     category: "Entertainment",
     amount: 3000.0,
-    date: dateFormat.parse("2020-06-01 21:40"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-06-01 21:40"),
     isIncome: false,
   ),
   Transaction(
@@ -80,7 +88,7 @@ List<Transaction> _transactions = [
     description: "Alienware",
     category: "Entertainment",
     amount: 2500.0,
-    date: dateFormat.parse("2020-05-31 11:40"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-05-31 11:40"),
     isIncome: false,
   ),
   Transaction(
@@ -89,7 +97,7 @@ List<Transaction> _transactions = [
     description: "Waiter Job",
     category: "Work",
     amount: 1500.0,
-    date: dateFormat.parse("2020-05-30 20:40"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-05-30 20:40"),
     isIncome: true,
   ),
   Transaction(
@@ -98,7 +106,7 @@ List<Transaction> _transactions = [
     description: "Internship at Google",
     category: "Work",
     amount: 25000.0,
-    date: dateFormat.parse("2020-05-29 11:20"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-05-29 11:20"),
     isIncome: true,
   ),
   Transaction(
@@ -107,7 +115,7 @@ List<Transaction> _transactions = [
     description: "Lunch",
     category: "Meal",
     amount: 120.0,
-    date: dateFormat.parse("2020-05-28 11:35"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-05-28 11:35"),
     isIncome: false,
   ),
   Transaction(
@@ -116,7 +124,7 @@ List<Transaction> _transactions = [
     description: "Dinner",
     category: "Meal",
     amount: 220.0,
-    date: dateFormat.parse("2020-05-27 23:35"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-05-27 23:35"),
     isIncome: false,
   ),
   Transaction(
@@ -125,7 +133,7 @@ List<Transaction> _transactions = [
     description: "Buy PS4",
     category: "Entertainment",
     amount: 3120.0,
-    date: dateFormat.parse("2020-05-27 10:35"),
+    date: TimeFormatHelper.dateAndTimeFormatter().parse("2020-05-27 10:35"),
     isIncome: false,
   ),
 ];

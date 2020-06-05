@@ -146,8 +146,9 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                Transaction.transactionDateAndDayFormat
-                                    .format(transaction.date),
+                                TimeFormatHelper.formatToDayAndDate(
+                                  transaction.date,
+                                ),
                               ),
                             ),
                           ],
@@ -163,7 +164,7 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                "HKD ${Transaction.currencyFormat.format(transaction.amount)}",
+                                "HKD ${currencyFormat(transaction.amount)}",
                               ),
                             ),
                           ],
@@ -190,7 +191,7 @@ class _BalanceTimelineScreenState extends State<BalanceTimelineScreen> {
       ),
       isFirst: index == 0,
       isLast: index == _transactions.length,
-      icon: Icon(getCategoryIcon(transaction.category)),
+      icon: Icon(getIconBasedOnCategory(transaction.category)),
       iconBackground: Theme.of(context).accentColor,
     );
   }
