@@ -5,7 +5,7 @@ import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_home_screen.dart";
-import "package:student_app/screens/schedule_screen.dart";
+import "package:student_app/screens/schedule_home_screen.dart";
 import "package:student_app/services/user_shared_preference.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/utils.dart";

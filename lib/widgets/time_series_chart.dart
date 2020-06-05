@@ -50,7 +50,7 @@ class TimeSeriesChart extends StatelessWidget {
       _buildSeriesList(),
       animate: true,
       domainAxis: charts.DateTimeAxisSpec(
-        tickProviderSpec: charts.DayTickProviderSpec(increments: [1]),
+        tickProviderSpec: charts.DayTickProviderSpec(increments: [2]),
         tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
           day: charts.TimeFormatterSpec(
             format: 'dd MMM',
