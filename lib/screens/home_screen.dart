@@ -5,6 +5,7 @@ import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_home_screen.dart";
+import "package:student_app/screens/create_schedule_screen.dart";
 import "package:student_app/screens/schedule_home_screen.dart";
 import "package:student_app/services/user_shared_preference.dart";
 import "package:student_app/models/user.dart";
@@ -115,19 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   FloatingActionButton customizedFloatingActionButton(String activePageName) {
-    if (activePageName == "Balance") {
-      return FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => BalanceDetailScreen(),
-        )),
-        child: Icon(Icons.add),
-      );
-    }
     return FloatingActionButton(
-      onPressed: () {
-        print("This is schedule floating action button");
-      },
-      child: Icon(Icons.settings_backup_restore),
+      onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+        // builder: (_) => BalanceDetailScreen(),
+        builder: (_) => activePageName == "Balance"
+            ? BalanceDetailScreen()
+            : CreateScheduleScreen(),
+      )),
+      child: Icon(Icons.add),
     );
   }
 

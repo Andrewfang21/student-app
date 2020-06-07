@@ -1,7 +1,6 @@
-import "package:flutter/foundation.dart";
 import "package:uuid/uuid.dart";
 
-class Task with ChangeNotifier {
+class Task {
   String id;
   String name;
   String description;
@@ -9,6 +8,7 @@ class Task with ChangeNotifier {
   String priority;
   DateTime dueAt;
   DateTime createdAt;
+  bool isCompleted;
 
   Task({
     id,
@@ -23,7 +23,8 @@ class Task with ChangeNotifier {
         this.description = description ?? "",
         this.category = category,
         this.dueAt = dueAt ?? DateTime.now(),
-        this.createdAt = DateTime.now();
+        this.createdAt = DateTime.now(),
+        this.isCompleted = false;
 
   void updateName(String name) {
     this.name = name;
