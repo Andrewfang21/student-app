@@ -34,6 +34,14 @@ const Map<String, dynamic> categories = {
   "Others": Icons.folder,
 };
 
+const Map<String, dynamic> taskCategories = {
+  "Meeting": Icons.contacts,
+  "Personal": Icons.person,
+  "Study": Icons.school,
+  "Work": Icons.work,
+  "Others": Icons.folder,
+};
+
 IconData getIconBasedOnCategory(String str) {
   return categories[str];
 }

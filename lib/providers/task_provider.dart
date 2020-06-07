@@ -14,6 +14,10 @@ class TaskProvider with ChangeNotifier {
             task.dueAt.year == date.year)
         .toList();
   }
+
+  List<Task> getTasksWithCategory(String category) {
+    return [..._tasks].where((task) => task.category == category).toList();
+  }
 }
 
 List<Task> _tasks = [
@@ -21,9 +25,9 @@ List<Task> _tasks = [
     id: Uuid().v4(),
     name: "ENGG2430 Homework",
     description: "Homework cuy",
-    category: "School",
+    category: "Study",
     priority: 1,
-    dueAt: TimeFormatHelper.dateAndTimeFormatter().parse("2020-06-07 21:40"),
+    dueAt: DateTime.now(),
     createdAt: DateTime.now(),
   ),
   Task(
@@ -39,7 +43,7 @@ List<Task> _tasks = [
     id: Uuid().v4(),
     name: "CSCI3100 Project",
     description: "Project cuy",
-    category: "School",
+    category: "Study",
     priority: 1,
     dueAt: DateTime.now().add(Duration(days: 3)),
     createdAt: DateTime.now(),

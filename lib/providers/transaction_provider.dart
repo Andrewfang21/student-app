@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:student_app/models/transaction.dart";
-import 'package:student_app/utils.dart';
+import "package:student_app/utils.dart";
 
 class TransactionProvider with ChangeNotifier {
   List<Transaction> get transactions => [..._transactions];

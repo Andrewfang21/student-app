@@ -1,11 +1,18 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
-import 'package:intl/intl.dart';
+import "package:intl/intl.dart";
 import "package:provider/provider.dart";
-import 'package:student_app/models/task.dart';
+import "package:student_app/models/task.dart";
+import "package:student_app/screens/schedule_calendar_screen.dart";
+import "package:student_app/screens/schedule_detail_screen.dart";
+import "package:student_app/screens/schedule_list_screen.dart";
+import "package:student_app/screens/schedule_setting_screen.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/providers/task_provider.dart";
 import "package:student_app/models/user.dart";
+import "package:student_app/utils.dart";
 
 class ScheduleScreen extends StatelessWidget {
   List<Widget> _buildIntroSection(BuildContext context, User user) {
@@ -37,6 +44,68 @@ class ScheduleScreen extends StatelessWidget {
         ),
       )
     ];
+  }
+
+  String _getTotalTasks(List<Task> tasks, String category) {
+    int taskCount =
+        tasks.where((Task task) => task.category == category).toList().length;
+    return taskCount < 2 ? "$taskCount task" : "$taskCount tasks";
+  }
+
+  Widget _buildCategoryCarousel(BuildContext context) {
+    final List<Task> _tasks =
+        Provider.of<TaskProvider>(context, listen: false).tasks;
+
+    return Container(
+      height: 120,
+      child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: taskCategories.keys.length,
+          itemBuilder: (BuildContext context, int index) {
+            final String category = taskCategories.keys.toList()[index];
+            final IconData categoryIcon = taskCategories.values.toList()[index];
+
+            return Container(
+              width: 120,
+              child: Card(
+                elevation: 2.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => ScheduleListScreen(
+                            tasks: Provider.of<TaskProvider>(context)
+                                .getTasksWithCategory(category))),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Icon(categoryIcon),
+                        Text(
+                          category,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                        ),
+                        Text(_getTotalTasks(_tasks, category)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
   }
 
   Widget _buildModalBottomSheet(BuildContext context) {
@@ -81,13 +150,32 @@ class ScheduleScreen extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   itemCount: _todayTasks.length,
                   itemBuilder: (context, index) {
-                    return Card(
-                      color: Colors.grey[50],
-                      child: ListTile(
-                        dense: true,
-                        leading: Icon(Icons.access_alarm),
-                        title: Text(_todayTasks[index].name),
-                        subtitle: Text(_todayTasks[index].dueAt.toString()),
+                    return GestureDetector(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                ScheduleDetailScreen(task: _todayTasks[index])),
+                      ),
+                      child: Card(
+                        color: Colors.grey[50],
+                        child: ListTile(
+                          dense: true,
+                          leading: Icon(
+                            taskCategories[_todayTasks[index].category],
+                          ),
+                          title: Text(
+                            _todayTasks[index].name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                          subtitle: Text(
+                            DateFormat("E, yyyy-MM-dd      HH:mm").format(
+                              _todayTasks[index].dueAt,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -105,8 +193,6 @@ class ScheduleScreen extends StatelessWidget {
     final User _currentUser =
         Provider.of<UserProvider>(context, listen: false).currentUser;
 
-    final DateTime today = DateTime.now();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -115,69 +201,7 @@ class ScheduleScreen extends StatelessWidget {
           child: Column(
             children: <Widget>[
               ..._buildIntroSection(context, _currentUser),
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 30.0,
-                ),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).primaryColor,
-                        Theme.of(context).primaryColorLight,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 2.5,
-                        offset: Offset(0, 5.5),
-                      ),
-                      BoxShadow(
-                        color: Theme.of(context).primaryColorDark,
-                        blurRadius: .5,
-                        offset: Offset(0, 2.5),
-                      ),
-                    ]),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      margin: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 10.0),
-                            child: Text(DateFormat("EEEE").format(today)),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 10.0),
-                            child: Text(
-                              DateFormat("MMMM dd").format(today).toString(),
-                            ),
-                          ),
-                          Text(
-                            "${DateFormat('HH:mm').format(DateTime.now())}",
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 20.0),
-                        child: Text(
-                          "Icon here",
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              )
+              TitleCard(),
             ],
           ),
         ),
@@ -195,37 +219,142 @@ class ScheduleScreen extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          height: 120,
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: 5,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  width: 120,
-                  child: Card(
-                    elevation: 2.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(Icons.ac_unit),
-                          Text("This is card $index"),
-                          Text("10 tasks"),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-        ),
+        _buildCategoryCarousel(context),
         _buildModalBottomSheet(context),
       ],
+    );
+  }
+}
+
+class TitleCard extends StatefulWidget {
+  TitleCard({Key key}) : super(key: key);
+
+  @override
+  _TitleCardState createState() => _TitleCardState();
+}
+
+class _TitleCardState extends State<TitleCard> {
+  DateTime _currentTime;
+  Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTime = DateTime.now();
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
+      setState(() => _currentTime = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  AssetImage getAssetPathBasedOnTime(DateTime time) {
+    String assetName = "";
+    if (time.hour >= 6 && time.hour <= 11) {
+      assetName = "morning";
+    } else if (time.hour >= 12 && time.hour <= 15) {
+      assetName = "noon";
+    } else if (time.hour >= 15 && time.hour <= 18) {
+      assetName = "afternoon";
+    } else
+      assetName = "night";
+
+    return AssetImage("assets/images/$assetName-icon.png");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        vertical: 10.0,
+        horizontal: 35.0,
+      ),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColorLight,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              blurRadius: 2.5,
+              offset: Offset(0, 5.5),
+            ),
+            BoxShadow(
+              color: Theme.of(context).primaryColorDark,
+              blurRadius: .5,
+              offset: Offset(0, 2.5),
+            ),
+          ]),
+      child: Row(
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  child: Text(
+                    "${DateFormat('EEEE').format(_currentTime)}, ${DateFormat('MMMM dd').format(_currentTime)}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.grey[100],
+                    ),
+                  ),
+                ),
+                Text(DateFormat('HH:mm').format(_currentTime),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                      color: Colors.grey[100],
+                    )),
+                Row(
+                  children: <Widget>[
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.bottomCenter,
+                      icon: Icon(
+                        Icons.calendar_today,
+                        color: Colors.grey[100],
+                      ),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => ScheduleCalendarScreen()),
+                      ),
+                    ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.bottomCenter,
+                      icon: Icon(
+                        Icons.settings,
+                        color: Colors.grey[100],
+                      ),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => ScheduleSettingScreen()),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Image(image: getAssetPathBasedOnTime(_currentTime)),
+          )
+        ],
+      ),
     );
   }
 }
