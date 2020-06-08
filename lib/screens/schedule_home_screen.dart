@@ -76,6 +76,7 @@ class ScheduleScreen extends StatelessWidget {
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                         builder: (_) => ScheduleListScreen(
+                            category: category,
                             tasks: Provider.of<TaskProvider>(context)
                                 .getTasksWithCategory(category))),
                   ),

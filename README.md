@@ -8,6 +8,7 @@ An application for students to help them in managing their daily schedules and e
   <img src="screenshots/1.jpg" width="25%">
   <img style="margin-left: 10px;" src="screenshots/2.jpg" width="25%">
   <img style="margin-left: 10px;" src="screenshots/3.jpg" width="25%">
+  <img style="margin-left: 10px;" src="screenshots/4.jpg" width="25%">
 </div>
 
 ## Features (To Be Implemented):

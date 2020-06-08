@@ -5,7 +5,7 @@ class Task {
   String name;
   String description;
   String category;
-  String priority;
+  int priority;
   DateTime dueAt;
   DateTime createdAt;
   bool isCompleted;
@@ -22,6 +22,7 @@ class Task {
         this.name = name ?? "",
         this.description = description ?? "",
         this.category = category,
+        this.priority = priority ?? 3,
         this.dueAt = dueAt ?? DateTime.now(),
         this.createdAt = DateTime.now(),
         this.isCompleted = false;
@@ -38,7 +39,7 @@ class Task {
     this.category = category;
   }
 
-  void updatePriority(String priority) {
+  void updatePriority(int priority) {
     this.priority = priority;
   }
 
