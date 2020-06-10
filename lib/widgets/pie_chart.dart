@@ -14,7 +14,7 @@ class PieChart extends StatelessWidget {
 
   List<charts.Series<PieChartTransaction, String>> _buildPieChart() {
     List<PieChartTransaction> list = [];
-    categories.keys.forEach((String category) {
+    transactionCategories.keys.forEach((String category) {
       list.add(
         PieChartTransaction(
           category: category,

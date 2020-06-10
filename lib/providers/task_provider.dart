@@ -17,6 +17,25 @@ class TaskProvider with ChangeNotifier {
   List<Task> getTasksWithCategory(String category) {
     return [..._tasks].where((task) => task.category == category).toList();
   }
+
+  void addTask(Task newTask) {
+    _tasks.add(newTask);
+    notifyListeners();
+  }
+
+  void updateTask(String id, Task editedTask) {
+    final int index = _tasks.indexWhere((task) => task.id == id);
+    print("$index -> ini index nya woi");
+    if (index >= 0) {
+      _tasks[index] = editedTask;
+      notifyListeners();
+    }
+  }
+
+  void deleteTask(String id) {
+    _tasks.removeWhere((task) => task.id == id);
+    notifyListeners();
+  }
 }
 
 List<Task> _tasks = [

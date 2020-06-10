@@ -22,7 +22,7 @@ bool isZero(double x) {
   return (x - 0).abs() <= eps;
 }
 
-const Map<String, dynamic> categories = {
+const Map<String, dynamic> transactionCategories = {
   "Entertainment": Icons.gamepad,
   "Gift": Icons.card_giftcard,
   "Hostel": Icons.hotel,
@@ -41,10 +41,6 @@ const Map<String, dynamic> taskCategories = {
   "Work": Icons.work,
   "Others": Icons.folder,
 };
-
-IconData getIconBasedOnCategory(String str) {
-  return categories[str];
-}
 
 String currencyFormat(double value) {
   return NumberFormat("#,##0.00").format(value);

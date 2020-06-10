@@ -1,15 +1,11 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:percent_indicator/linear_percent_indicator.dart";
+import "package:student_app/screens/create_schedule_screen.dart";
 import "package:student_app/models/task.dart";
 
 class ScheduleDetailScreen extends StatelessWidget {
   final Task task;
-  final List<PriorityItem> _priorityItems = [
-    PriorityItem(percentage: .33, color: Colors.green),
-    PriorityItem(percentage: .66, color: Colors.amber[600]),
-    PriorityItem(percentage: 1.0, color: Colors.red),
-  ];
 
   ScheduleDetailScreen({
     @required this.task,
@@ -17,6 +13,8 @@ class ScheduleDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(task.description);
+
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: CustomScrollView(
@@ -85,8 +83,8 @@ class ScheduleDetailScreen extends StatelessWidget {
                       LinearPercentIndicator(
                         width: 150,
                         padding: EdgeInsets.zero,
-                        progressColor: _priorityItems[task.priority - 1].color,
-                        percent: _priorityItems[task.priority - 1].percentage,
+                        progressColor: priorityItems[task.priority].color,
+                        percent: priorityItems[task.priority].percentage,
                       ),
                     ],
                   ),
@@ -113,7 +111,10 @@ class ScheduleDetailScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => print(task.priority),
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => CreateScheduleScreen(
+                  currentTask: task,
+                ))),
         child: Icon(Icons.edit),
       ),
     );
@@ -156,3 +157,10 @@ class PriorityItem {
     @required this.color,
   });
 }
+
+final List<PriorityItem> priorityItems = [
+  PriorityItem(percentage: .0, color: Colors.grey),
+  PriorityItem(percentage: .33, color: Colors.green),
+  PriorityItem(percentage: .66, color: Colors.amber[600]),
+  PriorityItem(percentage: 1.0, color: Colors.red),
+];

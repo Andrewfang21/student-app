@@ -4,6 +4,8 @@ import "package:student_app/providers/transaction_provider.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/models/transaction_form.dart";
 import "package:student_app/utils.dart";
+import 'package:student_app/widgets/date_form_button.dart';
+import "package:student_app/widgets/icon_with_text.dart";
 import "package:student_app/widgets/radio_field.dart";
 
 class BalanceDetailScreen extends StatefulWidget {
@@ -18,16 +20,15 @@ class BalanceDetailScreen extends StatefulWidget {
 }
 
 class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final List<RadioOption> _transactionCategoryList = [
     RadioOption(index: 0, text: "Income"),
     RadioOption(index: 1, text: "Expense"),
   ];
 
-  List<TransactionButtonField> transactionCategories = [];
-  TransactionFormField transactionName;
-  TransactionFormField transactionDescription;
-  TransactionFormField transactionAmount;
+  CustomFormField transactionName;
+  CustomFormField transactionDescription;
+  CustomFormField transactionAmount;
   Transaction _transaction;
   SelectRadio _selectedCategory;
 
@@ -36,39 +37,27 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
   @override
   void initState() {
     super.initState();
-    categories.forEach((text, icon) {
-      transactionCategories.add(TransactionButtonField(icon: icon, text: text));
-    });
 
-    if (widget.currentTransaction == null) {
-      transactionName = TransactionFormField(labelText: "Name");
-      transactionDescription = TransactionFormField(labelText: "Description");
-      transactionAmount = TransactionFormField(labelText: "Amount (in HKD)");
-      _transaction = Transaction();
-      _selectedCategory = SelectRadio(index: 0);
-    } else {
-      transactionName = TransactionFormField(
-        initialValue: widget.currentTransaction.name,
-        labelText: "Name",
-      );
-      transactionDescription = TransactionFormField(
-        initialValue: widget.currentTransaction.description,
-        labelText: "Description",
-      );
-      transactionAmount = TransactionFormField(
-        initialValue: widget.currentTransaction.amount.toStringAsFixed(2),
-        labelText: "Amount (in HKD)",
-      );
+    transactionName = CustomFormField(
+      initialValue: widget.currentTransaction?.name,
+      labelText: "Name",
+    );
+    transactionDescription = CustomFormField(
+      initialValue: widget.currentTransaction?.description,
+      labelText: "Description",
+    );
+    transactionAmount = CustomFormField(
+      initialValue: widget.currentTransaction?.amount?.toStringAsFixed(2),
+      labelText: "Amount (in HKD)",
+    );
 
-      _transaction = Transaction()
-        ..clone(
-          widget.currentTransaction,
-        );
+    _transaction = Transaction();
+    if (widget.currentTransaction != null)
+      _transaction.clone(widget.currentTransaction);
 
-      _selectedCategory = SelectRadio(
-        index: widget.currentTransaction.isIncome ? 0 : 1,
-      );
-    }
+    _selectedCategory = widget.currentTransaction != null
+        ? SelectRadio(index: widget.currentTransaction.isIncome ? 0 : 1)
+        : SelectRadio(index: 0);
   }
 
   @override
@@ -179,57 +168,63 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                         onSaved: (value) =>
                             _transaction.setAmount = double.parse(value),
                       ),
-                      _buildFieldTitle("Transaction date"),
-                      Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            _buildTransactionDateButton(
-                              TimeFormatHelper.formatToDateOnly(
-                                _transaction.date,
-                              ),
-                              Icons.date_range,
-                              () async {
-                                final DateTime updatedDate =
-                                    await _showDatePicker(context);
-                                if (updatedDate != null)
-                                  _updateDate(updatedDate);
-                              },
-                            ),
-                            _buildTransactionDateButton(
-                              TimeFormatHelper.formatToTimeOnly(
-                                _transaction.date,
-                              ),
-                              Icons.access_time,
-                              () async {
-                                final TimeOfDay updatedTime =
-                                    await _showTimePicker(context);
-                                if (updatedTime != null)
-                                  _updateTime(updatedTime);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      _buildFieldTitle("Category"),
-                      DropdownButtonFormField(
-                        hint: _iconWithText(
-                          _transaction.category,
-                          getIconBasedOnCategory(_transaction.category),
-                        ),
-                        items: transactionCategories
-                            .map((TransactionButtonField category) {
-                          return DropdownMenuItem<TransactionButtonField>(
-                            value: category,
-                            child: _iconWithText(category.text, category.icon),
+                      FormFieldTitle(text: "Transaction Date"),
+                      DateFormButton(
+                        date: _transaction.date,
+                        onPressDateHandler: () async {
+                          final DateTime newDate = await showDatePicker(
+                            context: context,
+                            initialDate: _transaction.date,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
                           );
-                        }).toList(),
-                        onChanged: (TransactionButtonField selectedCategory) =>
+                          if (newDate != null) {
                             setState(
-                          () => _transaction.category = selectedCategory.text,
-                        ),
+                              () => _transaction.setTransactionDate = newDate,
+                            );
+                          }
+                        },
+                        onPressTimeHandler: () async {
+                          final TimeOfDay newTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay(
+                                  hour: _transaction.date.hour,
+                                  minute: _transaction.date.minute));
+                          if (newTime != null) {
+                            setState(
+                              () => _transaction.setTransactionTime = newTime,
+                            );
+                          }
+                        },
                       ),
-                      _buildFieldTitle("Status"),
+                      FormFieldTitle(text: "Category"),
+                      DropdownButtonFormField(
+                        hint: IconWithTextWidget(
+                          child: IconWithText(
+                            text: _transaction.category,
+                            icon: transactionCategories[_transaction.category],
+                          ),
+                          marginWidth: 10.0,
+                        ),
+                        items: transactionCategories.entries
+                            .map((e) => DropdownMenuItem<IconWithText>(
+                                  value: IconWithText(
+                                      text: _transaction.category,
+                                      icon: transactionCategories[
+                                          _transaction.category]),
+                                  child: IconWithTextWidget(
+                                      child: IconWithText(
+                                        text: e.key,
+                                        icon: transactionCategories[e.key],
+                                      ),
+                                      marginWidth: 10.0),
+                                ))
+                            .toList(),
+                        onChanged: (IconWithText e) {
+                          setState(() => _transaction.category = e.text);
+                        },
+                      ),
+                      FormFieldTitle(text: "Status"),
                       RadioField(
                         radioList: _transactionCategoryList,
                         selectedRadio: _selectedCategory,
@@ -242,50 +237,29 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
     );
   }
 
-  Widget _iconWithText(String title, IconData icon) {
-    return Row(
-      children: <Widget>[
-        Icon(icon),
-        SizedBox(width: 10.0),
-        Text(title, style: TextStyle(color: Colors.black)),
-      ],
-    );
-  }
-
-  Widget _buildTransactionDateButton(
-    String text,
-    IconData iconData,
-    Function onPressHandler,
-  ) {
-    return FlatButton(
-      child: Row(
-        children: <Widget>[
-          Icon(iconData),
-          Container(
-            margin: const EdgeInsets.only(left: 5.0),
-            child: SizedBox(
-              width: 80.0,
-              child: Text(text),
-            ),
-          ),
-          Container(child: Icon(Icons.chevron_right))
-        ],
-      ),
-      color: Colors.grey[300],
-      onPressed: onPressHandler,
-    );
-  }
-
-  Widget _buildFieldTitle(String title) {
-    return Container(
-      alignment: Alignment.centerLeft,
-      margin: const EdgeInsets.only(top: 15.0),
-      child: Text(
-        title,
-        style: TextStyle(color: Colors.grey[600], fontSize: 13),
-      ),
-    );
-  }
+  // Widget _buildTransactionDateButton(
+  //   String text,
+  //   IconData iconData,
+  //   Function onPressHandler,
+  // ) {
+  //   return FlatButton(
+  //     child: Row(
+  //       children: <Widget>[
+  //         Icon(iconData),
+  //         Container(
+  //           margin: const EdgeInsets.only(left: 5.0),
+  //           child: SizedBox(
+  //             width: 80.0,
+  //             child: Text(text),
+  //           ),
+  //         ),
+  //         Container(child: Icon(Icons.chevron_right))
+  //       ],
+  //     ),
+  //     color: Colors.grey[300],
+  //     onPressed: onPressHandler,
+  //   );
+  // }
 
   void _updateDate(DateTime updatedDate) {
     setState(

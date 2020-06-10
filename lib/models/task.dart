@@ -1,3 +1,4 @@
+import "package:flutter/material.dart";
 import "package:uuid/uuid.dart";
 
 class Task {
@@ -21,7 +22,7 @@ class Task {
   })  : this.id = id ?? Uuid().v4(),
         this.name = name ?? "",
         this.description = description ?? "",
-        this.category = category,
+        this.category = category ?? "Meeting",
         this.priority = priority ?? 3,
         this.dueAt = dueAt ?? DateTime.now(),
         this.createdAt = DateTime.now(),
@@ -43,7 +44,23 @@ class Task {
     this.priority = priority;
   }
 
-  void updateTaskDue(DateTime dueDate) {
-    this.dueAt = dueDate;
+  void updateTaskDueDate(DateTime newDate) {
+    this.dueAt = DateTime(
+      newDate.year,
+      newDate.month,
+      newDate.day,
+      this.dueAt.hour,
+      this.dueAt.minute,
+    );
+  }
+
+  void updateTaskDueTime(TimeOfDay newTime) {
+    this.dueAt = DateTime(
+      this.dueAt.year,
+      this.dueAt.month,
+      this.dueAt.day,
+      newTime.hour,
+      newTime.minute,
+    );
   }
 }

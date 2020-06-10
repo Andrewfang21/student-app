@@ -1,12 +1,12 @@
 import "package:flutter/material.dart";
 
-class TransactionFormField {
+class CustomFormField {
   TextEditingController controller = TextEditingController();
   FocusNode focusNode = FocusNode();
   String initialValue;
   String labelText;
 
-  TransactionFormField({
+  CustomFormField({
     controller,
     focusNode,
     this.initialValue = "",
@@ -14,12 +14,22 @@ class TransactionFormField {
   });
 }
 
-class TransactionButtonField {
-  String text;
-  IconData icon;
+class FormFieldTitle extends StatelessWidget {
+  final String text;
 
-  TransactionButtonField({
+  const FormFieldTitle({
     @required this.text,
-    @required this.icon,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      margin: const EdgeInsets.only(top: 15.0),
+      child: Text(
+        text,
+        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+      ),
+    );
+  }
 }
