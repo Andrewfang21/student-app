@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:student_app/services/transaction_service.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/utils.dart";
 
@@ -20,9 +21,11 @@ class TransactionProvider with ChangeNotifier {
         .toList();
   }
 
-  void addTransaction(Transaction newTransaction) {
-    _transactions.add(newTransaction);
-    sortTransactionByRule(currentRule, isAscending);
+  Future<void> addTransaction(Transaction transaction) async {
+    await TransactionService.createTransaction(transaction);
+
+    // _transactions.add(transaction);
+    // sortTransactionByRule(currentRule, isAscending);
 
     notifyListeners();
   }

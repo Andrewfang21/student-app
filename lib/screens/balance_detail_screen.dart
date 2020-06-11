@@ -81,7 +81,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
           _selectedCategory.index == 0 ? true : false;
 
       if (widget.currentTransaction == null)
-        Provider.of<TransactionProvider>(context, listen: false)
+        await Provider.of<TransactionProvider>(context, listen: false)
             .addTransaction(_transaction);
       else
         Provider.of<TransactionProvider>(context, listen: false)
@@ -234,61 +234,6 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                 ),
               ),
             ),
-    );
-  }
-
-  // Widget _buildTransactionDateButton(
-  //   String text,
-  //   IconData iconData,
-  //   Function onPressHandler,
-  // ) {
-  //   return FlatButton(
-  //     child: Row(
-  //       children: <Widget>[
-  //         Icon(iconData),
-  //         Container(
-  //           margin: const EdgeInsets.only(left: 5.0),
-  //           child: SizedBox(
-  //             width: 80.0,
-  //             child: Text(text),
-  //           ),
-  //         ),
-  //         Container(child: Icon(Icons.chevron_right))
-  //       ],
-  //     ),
-  //     color: Colors.grey[300],
-  //     onPressed: onPressHandler,
-  //   );
-  // }
-
-  void _updateDate(DateTime updatedDate) {
-    setState(
-      () => _transaction.setTransactionDate = updatedDate,
-    );
-  }
-
-  void _updateTime(TimeOfDay updatedTime) {
-    setState(
-      () => _transaction.setTransactionTime = updatedTime,
-    );
-  }
-
-  Future<DateTime> _showDatePicker(BuildContext context) {
-    return showDatePicker(
-      context: context,
-      initialDate: _transaction.date,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-  }
-
-  Future<TimeOfDay> _showTimePicker(BuildContext context) {
-    return showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(
-        hour: _transaction.date.hour,
-        minute: _transaction.date.minute,
-      ),
     );
   }
 }

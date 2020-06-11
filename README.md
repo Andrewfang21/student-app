@@ -11,7 +11,7 @@ An application for students to help them in managing their daily schedules and e
   <img style="margin-left: 10px;" src="screenshots/4.jpg" width="25%">
 </div>
 
-## Features (To Be Implemented):
+## Milestones (To Be Implemented):
 
 - [x] Authentication using google sign in firebase
 - [x] CRUD TODO List (TODO: Store them using Firestore, no Consumer<T> implemented yet in the schedule screens)

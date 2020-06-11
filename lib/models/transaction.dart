@@ -26,6 +26,28 @@ class Transaction with ChangeNotifier {
         this.date = date ?? DateTime.now(),
         this.isIncome = isIncome ?? false;
 
+  Transaction.fromJson(Map<String, dynamic> json) {
+    if (json != null) {
+      id = json["id"];
+      name = json["name"];
+      description = json["description"];
+      category = json["category"];
+      amount = json["amount"];
+      date = DateTime.parse(json["date"].toDate().toString());
+      isIncome = json["isIncome"];
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "description": description,
+        "category": category,
+        "amount": amount,
+        "date": date,
+        "isIncome": isIncome,
+      };
+
   void clone(Transaction transaction) {
     this.id = transaction.id;
     this.name = transaction.name;
