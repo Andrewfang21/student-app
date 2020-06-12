@@ -3,6 +3,7 @@ import "dart:math";
 import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart" as c;
 import "package:intl/intl.dart";
+import "package:provider/provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
 import "package:student_app/screens/balance_statistic_screen.dart";
 import "package:student_app/screens/balance_timeline_screen.dart";
@@ -11,6 +12,7 @@ import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/widgets/time_series_chart.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/models/transaction.dart";
+import "package:student_app/providers/user_provider.dart";
 import "package:student_app/utils.dart";
 
 class BalanceHomeScreen extends StatelessWidget {
@@ -42,7 +44,12 @@ class BalanceHomeScreen extends StatelessWidget {
               );
 
             final List<Transaction> transactions = snapshot.data.documents
-                .map((document) => Transaction.fromJson(document.data))
+                .map((document) =>
+                    Transaction.fromJson(document.documentID, document.data))
+                .where((document) =>
+                    document.creatorId ==
+                    Provider.of<UserProvider>(context, listen: false)
+                        .currentUserID)
                 .toList();
 
             return Column(

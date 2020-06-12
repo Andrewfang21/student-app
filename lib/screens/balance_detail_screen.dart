@@ -1,12 +1,13 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
-import "package:student_app/providers/transaction_provider.dart";
+import "package:student_app/providers/user_provider.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/models/transaction_form.dart";
-import "package:student_app/utils.dart";
-import 'package:student_app/widgets/date_form_button.dart';
+import "package:student_app/services/transaction_service.dart";
+import "package:student_app/widgets/date_form_button.dart";
 import "package:student_app/widgets/icon_with_text.dart";
 import "package:student_app/widgets/radio_field.dart";
+import "package:student_app/utils.dart";
 
 class BalanceDetailScreen extends StatefulWidget {
   final Transaction currentTransaction;
@@ -51,7 +52,10 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
       labelText: "Amount (in HKD)",
     );
 
-    _transaction = Transaction();
+    _transaction = Transaction(
+      creatorId:
+          Provider.of<UserProvider>(context, listen: false).currentUserID,
+    );
     if (widget.currentTransaction != null)
       _transaction.clone(widget.currentTransaction);
 
@@ -74,25 +78,29 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
 
     _formKey.currentState.save();
 
-    // TODO: use try catch
     setState(() => _isLoading = true);
-    if (_transaction.id != null) {
+
+    String snackBarMessage = "";
+    try {
       _transaction.setIsIncomeStatus =
           _selectedCategory.index == 0 ? true : false;
 
-      if (widget.currentTransaction == null)
-        await Provider.of<TransactionProvider>(context, listen: false)
-            .addTransaction(_transaction);
-      else
-        Provider.of<TransactionProvider>(context, listen: false)
-            .editTransaction(_transaction.id, _transaction);
+      if (widget.currentTransaction == null) {
+        await TransactionService.createTransaction(_transaction);
+        snackBarMessage = "Transaction added successfully";
+      } else {
+        await TransactionService.updateTransaction(_transaction);
+        snackBarMessage = "Transaction updated successfully";
+      }
+    } catch (e) {
+      print(e.toString());
+      snackBarMessage = "Error occurs, please try again later.";
     }
+
     setState(() => _isLoading = false);
 
     Scaffold.of(context).showSnackBar(SnackBar(
-      content: widget.currentTransaction == null
-          ? Text("Transaction added successfully")
-          : Text("Transaction edited successfully"),
+      content: Text(snackBarMessage),
       duration: Duration(seconds: 2),
     ));
   }
@@ -207,11 +215,8 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                           marginWidth: 10.0,
                         ),
                         items: transactionCategories.entries
-                            .map((e) => DropdownMenuItem<IconWithText>(
-                                  value: IconWithText(
-                                      text: _transaction.category,
-                                      icon: transactionCategories[
-                                          _transaction.category]),
+                            .map((e) => DropdownMenuItem<String>(
+                                  value: e.key,
                                   child: IconWithTextWidget(
                                       child: IconWithText(
                                         text: e.key,
@@ -220,8 +225,8 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                                       marginWidth: 10.0),
                                 ))
                             .toList(),
-                        onChanged: (IconWithText e) {
-                          setState(() => _transaction.category = e.text);
+                        onChanged: (String e) {
+                          setState(() => _transaction.category = e);
                         },
                       ),
                       FormFieldTitle(text: "Status"),

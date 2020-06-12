@@ -12,4 +12,6 @@ class UserProvider with ChangeNotifier {
       );
 
   get currentUser => _currentUser;
+
+  get currentUserID => _currentUser.uid;
 }

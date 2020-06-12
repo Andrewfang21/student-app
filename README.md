@@ -17,7 +17,7 @@ An application for students to help them in managing their daily schedules and e
 - [x] CRUD TODO List (TODO: Store them using Firestore, no Consumer<T> implemented yet in the schedule screens)
 - [ ] Push Notifications to remind their upcoming tasks
 - [x] Calendars
-- [x] CRUD List of Expenses (TODO: Store them using Firestore)
+- [x] CRUD List of Expenses
 - [x] Analytics and Charts Visualization of their expenses
 
 ## Tech Stacks

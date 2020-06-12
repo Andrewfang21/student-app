@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:uuid/uuid.dart";
 
 class Transaction with ChangeNotifier {
   String id;
@@ -9,43 +8,44 @@ class Transaction with ChangeNotifier {
   double amount;
   DateTime date;
   bool isIncome;
+  String creatorId;
 
   Transaction({
-    id,
     name,
     description,
     category,
     amount,
     date,
     isIncome,
-  })  : this.id = id ?? Uuid().v4(),
-        this.name = name ?? "",
+    @required this.creatorId,
+  })  : this.name = name ?? "",
         this.description = description ?? "",
         this.category = category ?? "Entertainment",
         this.amount = amount ?? 0.0,
         this.date = date ?? DateTime.now(),
         this.isIncome = isIncome ?? false;
 
-  Transaction.fromJson(Map<String, dynamic> json) {
+  Transaction.fromJson(String id, Map<String, dynamic> json) {
     if (json != null) {
-      id = json["id"];
-      name = json["name"];
-      description = json["description"];
-      category = json["category"];
-      amount = json["amount"];
-      date = DateTime.parse(json["date"].toDate().toString());
-      isIncome = json["isIncome"];
+      this.id = id;
+      this.name = json["name"];
+      this.description = json["description"];
+      this.category = json["category"];
+      this.amount = json["amount"];
+      this.date = DateTime.parse(json["date"].toDate().toString());
+      this.isIncome = json["isIncome"];
+      this.creatorId = json["creatorId"];
     }
   }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
         "name": name,
         "description": description,
         "category": category,
         "amount": amount,
         "date": date,
         "isIncome": isIncome,
+        "creatorId": creatorId,
       };
 
   void clone(Transaction transaction) {
@@ -56,6 +56,7 @@ class Transaction with ChangeNotifier {
     this.amount = transaction.amount;
     this.date = transaction.date;
     this.isIncome = transaction.isIncome;
+    this.creatorId = transaction.creatorId;
   }
 
   set setName(String name) => this.name = name;

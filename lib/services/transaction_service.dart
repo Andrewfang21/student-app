@@ -12,7 +12,7 @@ class TransactionService {
 
   static Future<DocumentReference> createTransaction(
       models.Transaction transaction) {
-    return getDocumentReference(transaction.id).setData(transaction.toJson());
+    return getCollectionReference().add(transaction.toJson());
   }
 
   static Future<void> updateTransaction(models.Transaction transaction) async {

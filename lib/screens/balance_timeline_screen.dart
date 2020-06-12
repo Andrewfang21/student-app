@@ -1,12 +1,11 @@
 import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart" as c;
-import "package:provider/provider.dart";
 import "package:timeline_list/timeline_model.dart";
+import "package:provider/provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
-import "package:student_app/screens/balance_preference_screen.dart";
 import "package:student_app/services/transaction_service.dart";
 import "package:student_app/models/transaction.dart";
-import "package:student_app/providers/transaction_provider.dart";
+import "package:student_app/providers/user_provider.dart";
 import "package:student_app/widgets/timeline_widget.dart";
 import "package:student_app/utils.dart";
 
@@ -23,11 +22,9 @@ class BalanceTimelineScreen extends StatelessWidget {
           builder: (_) => AlertDialog(
                 content: GestureDetector(
                   child: Container(child: Text("Delete")),
-                  onTap: () {
-                    // TODO: Change this
-                    Provider.of<TransactionProvider>(context, listen: false)
-                        .deleteTransaction(transaction.id);
-                    Navigator.of(context).pop();
+                  onTap: () async {
+                    Navigator.of(context).pop(true);
+                    await TransactionService.deleteTransaction(transaction);
                   },
                 ),
               )),
@@ -124,15 +121,6 @@ class BalanceTimelineScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Transactions History"),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.filter_list),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => BalancePreferenceScreen()),
-                );
-              })
-        ],
       ),
       backgroundColor: Theme.of(context).backgroundColor,
       body: StreamBuilder(
@@ -147,7 +135,12 @@ class BalanceTimelineScreen extends StatelessWidget {
             child.add(Center(child: CircularProgressIndicator()));
           else {
             final List<Transaction> transactions = snapshot.data.documents
-                .map((document) => Transaction.fromJson(document.data))
+                .map((document) =>
+                    Transaction.fromJson(document.documentID, document.data))
+                .where((document) =>
+                    document.creatorId ==
+                    Provider.of<UserProvider>(context, listen: false)
+                        .currentUserID)
                 .toList();
 
             if (transactions.isEmpty)
