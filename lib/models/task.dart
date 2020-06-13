@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:uuid/uuid.dart";
 
 class Task {
   String id;
@@ -10,6 +9,7 @@ class Task {
   DateTime dueAt;
   DateTime createdAt;
   bool isCompleted;
+  String creatorId;
 
   Task({
     id,
@@ -19,7 +19,8 @@ class Task {
     priority,
     dueAt,
     createdAt,
-  })  : this.id = id ?? Uuid().v4(),
+    @required this.creatorId,
+  })  : this.id = id,
         this.name = name ?? "",
         this.description = description ?? "",
         this.category = category ?? "Meeting",
@@ -27,6 +28,29 @@ class Task {
         this.dueAt = dueAt ?? DateTime.now(),
         this.createdAt = DateTime.now(),
         this.isCompleted = false;
+
+  Task.fromJson(String id, Map<String, dynamic> json) {
+    if (json != null) {
+      this.id = id;
+      this.name = json["name"];
+      this.description = json["description"];
+      this.category = json["category"];
+      this.priority = json["priority"];
+      this.dueAt = DateTime.parse(json["dueAt"].toDate().toString());
+      this.createdAt = DateTime.parse(json["createdAt"].toDate().toString());
+      this.creatorId = json["creatorId"];
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "description": description,
+        "category": category,
+        "priority": priority,
+        "dueAt": dueAt,
+        "createdAt": createdAt,
+        "creatorId": creatorId,
+      };
 
   void updateName(String name) {
     this.name = name;

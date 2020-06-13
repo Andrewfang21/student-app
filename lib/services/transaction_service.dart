@@ -23,4 +23,8 @@ class TransactionService {
   static Future<void> deleteTransaction(models.Transaction transaction) {
     return getDocumentReference(transaction.id).delete();
   }
+
+  static Query getCollectionReferenceOrderByDate() {
+    return getCollectionReference().orderBy("date", descending: true);
+  }
 }

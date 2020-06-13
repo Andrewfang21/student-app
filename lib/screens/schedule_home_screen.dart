@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:flutter/material.dart";
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 import "package:student_app/models/task.dart";
@@ -8,9 +9,9 @@ import "package:student_app/screens/schedule_calendar_screen.dart";
 import "package:student_app/screens/schedule_detail_screen.dart";
 import "package:student_app/screens/schedule_list_screen.dart";
 import "package:student_app/screens/schedule_setting_screen.dart";
+import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/providers/user_provider.dart";
-import "package:student_app/providers/task_provider.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/utils.dart";
 
@@ -46,16 +47,89 @@ class ScheduleScreen extends StatelessWidget {
     ];
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final User _currentUser =
+        Provider.of<UserProvider>(context, listen: false).currentUser;
+
+    return StreamBuilder(
+      stream: TaskService.getCollectionReference().snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        List<Widget> children = [CustomizedAppBar(title: "Schedule")];
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          children.add(Container(
+            height: MediaQuery.of(context).size.height / 2,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ));
+
+          return Column(
+            children: children,
+          );
+        }
+
+        final List<Task> tasks = snapshot.data.documents
+            .map(
+                (document) => Task.fromJson(document.documentID, document.data))
+            .where((document) =>
+                document.creatorId == _currentUser.uid &&
+                document.dueAt.isAfter(DateTime.now()))
+            .toList()
+              ..sort((x, y) => x.dueAt.isBefore(y.dueAt) ? -1 : 1);
+
+        children.addAll(<Widget>[
+          Container(
+            child: Column(
+              children: <Widget>[
+                ..._buildIntroSection(context, _currentUser),
+                TitleCard(),
+              ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 10.0,
+            ),
+            child: Text(
+              "Category",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
+              ),
+            ),
+          ),
+          TaskCategoryCarousel(tasks: tasks),
+          TaskModalBottomSheet(tasks: tasks),
+        ]);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        );
+      },
+    );
+  }
+}
+
+class TaskCategoryCarousel extends StatelessWidget {
+  final List<Task> tasks;
+
+  const TaskCategoryCarousel({
+    @required this.tasks,
+  });
+
   String _getTotalTasks(List<Task> tasks, String category) {
     int taskCount =
         tasks.where((Task task) => task.category == category).toList().length;
     return taskCount < 2 ? "$taskCount task" : "$taskCount tasks";
   }
 
-  Widget _buildCategoryCarousel(BuildContext context) {
-    final List<Task> _tasks =
-        Provider.of<TaskProvider>(context, listen: false).tasks;
-
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 120,
       child: ListView.builder(
@@ -75,10 +149,7 @@ class ScheduleScreen extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (_) => ScheduleListScreen(
-                            category: category,
-                            tasks: Provider.of<TaskProvider>(context)
-                                .getTasksWithCategory(category))),
+                        builder: (_) => ScheduleListScreen(category: category)),
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(10.0),
@@ -98,7 +169,7 @@ class ScheduleScreen extends StatelessWidget {
                             fontSize: 17,
                           ),
                         ),
-                        Text(_getTotalTasks(_tasks, category)),
+                        Text(_getTotalTasks(tasks, category)),
                       ],
                     ),
                   ),
@@ -108,11 +179,21 @@ class ScheduleScreen extends StatelessWidget {
           }),
     );
   }
+}
 
-  Widget _buildModalBottomSheet(BuildContext context) {
-    final List<Task> _todayTasks =
-        Provider.of<TaskProvider>(context, listen: false)
-            .getTasksDueAt(DateTime.now());
+class TaskModalBottomSheet extends StatelessWidget {
+  final List<Task> tasks;
+  const TaskModalBottomSheet({
+    @required this.tasks,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Task> todayTasks = tasks
+        .where((Task task) =>
+            task.dueAt.difference(DateTime.now()).inDays == 0 &&
+            task.dueAt.day == DateTime.now().day)
+        .toList();
 
     return Expanded(
       child: Container(
@@ -145,84 +226,52 @@ class ScheduleScreen extends StatelessWidget {
                 ),
               ),
               Container(
+                alignment: Alignment.center,
                 height: 150,
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: _todayTasks.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                ScheduleDetailScreen(task: _todayTasks[index])),
-                      ),
-                      child: Card(
-                        color: Colors.grey[50],
-                        child: ListTile(
-                          dense: true,
-                          leading: Icon(
-                            taskCategories[_todayTasks[index].category],
-                          ),
-                          title: Text(
-                            _todayTasks[index].name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                child: todayTasks.length == 0
+                    ? Center(
+                        child: Text("You have no task today"),
+                      )
+                    : ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: todayTasks.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => ScheduleDetailScreen(
+                                      task: todayTasks[index])),
                             ),
-                          ),
-                          subtitle: Text(
-                            DateFormat("E, yyyy-MM-dd      HH:mm").format(
-                              _todayTasks[index].dueAt,
+                            child: Card(
+                              color: Colors.grey[50],
+                              child: ListTile(
+                                dense: true,
+                                leading: Icon(
+                                  taskCategories[todayTasks[index].category],
+                                ),
+                                title: Text(
+                                  todayTasks[index].name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  DateFormat("E, yyyy-MM-dd      HH:mm").format(
+                                    todayTasks[index].dueAt,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               )
             ],
           ),
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final User _currentUser =
-        Provider.of<UserProvider>(context, listen: false).currentUser;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        CustomizedAppBar(title: "Schedule"),
-        Container(
-          child: Column(
-            children: <Widget>[
-              ..._buildIntroSection(context, _currentUser),
-              TitleCard(),
-            ],
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(
-            horizontal: 20.0,
-            vertical: 10.0,
-          ),
-          child: Text(
-            "Category",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-            ),
-          ),
-        ),
-        _buildCategoryCarousel(context),
-        _buildModalBottomSheet(context),
-      ],
     );
   }
 }

@@ -72,7 +72,7 @@ class Transaction with ChangeNotifier {
       );
   set setTransactionTime(TimeOfDay newTime) => this.date = DateTime(
         this.date.year,
-        this.date.hour,
+        this.date.month,
         this.date.day,
         newTime.hour,
         newTime.minute,

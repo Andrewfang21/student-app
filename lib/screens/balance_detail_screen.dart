@@ -2,11 +2,11 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/models/transaction.dart";
-import "package:student_app/models/transaction_form.dart";
 import "package:student_app/services/transaction_service.dart";
 import "package:student_app/widgets/date_form_button.dart";
 import "package:student_app/widgets/icon_with_text.dart";
 import "package:student_app/widgets/radio_field.dart";
+import "package:student_app/widgets/transaction_form.dart";
 import "package:student_app/utils.dart";
 
 class BalanceDetailScreen extends StatefulWidget {
@@ -93,8 +93,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
         snackBarMessage = "Transaction updated successfully";
       }
     } catch (e) {
-      print(e.toString());
-      snackBarMessage = "Error occurs, please try again later.";
+      snackBarMessage = "Error occurs, please try again later";
     }
 
     setState(() => _isLoading = false);

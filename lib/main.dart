@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
-import "package:student_app/providers/task_provider.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/screens/home_screen.dart";
 import "package:student_app/screens/login_screen.dart";
@@ -20,7 +19,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AppStateProvider()),
-        ChangeNotifierProvider(create: (context) => TaskProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(

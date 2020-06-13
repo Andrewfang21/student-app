@@ -13,8 +13,6 @@ class ScheduleDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(task.description);
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: CustomScrollView(

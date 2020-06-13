@@ -1,10 +1,11 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/models/task.dart";
-import "package:student_app/models/transaction_form.dart";
-import "package:student_app/providers/task_provider.dart";
+import "package:student_app/providers/user_provider.dart";
+import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/date_form_button.dart";
 import "package:student_app/widgets/icon_with_text.dart";
+import "package:student_app/widgets/transaction_form.dart";
 import "package:student_app/utils.dart";
 
 class CreateScheduleScreen extends StatefulWidget {
@@ -39,7 +40,11 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
       labelText: "Description",
     );
 
-    _task = Task(id: widget.currentTask?.id);
+    _task = Task(
+      id: widget.currentTask?.id,
+      creatorId:
+          Provider.of<UserProvider>(context, listen: false).currentUserID,
+    );
   }
 
   Future<void> _saveForm(BuildContext context) async {
@@ -50,15 +55,25 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
 
     setState(() => _isLoading = true);
 
-    widget.currentTask == null
-        ? Provider.of<TaskProvider>(context, listen: false).addTask(_task)
-        : Provider.of<TaskProvider>(context, listen: false)
-            .updateTask(_task.id, _task);
+    String snackBarMessage = "";
+    try {
+      if (widget.currentTask == null) {
+        await TaskService.createTask(_task);
+        snackBarMessage = "Task added successfully";
+      } else {
+        await TaskService.updateTask(_task);
+        snackBarMessage = "Task updated successfully";
+      }
+    } catch (e) {
+      snackBarMessage = "Error occurs, please try again later";
+    }
 
-    // Dummy loading
-    await Future.delayed(Duration(seconds: 3), () {
-      setState(() => _isLoading = false);
-    });
+    setState(() => _isLoading = false);
+
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text(snackBarMessage),
+      duration: Duration(seconds: 2),
+    ));
   }
 
   String _getLabelFromValue(int priority) {
@@ -88,13 +103,6 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
                     : () async {
                         FocusScope.of(context).requestFocus(FocusNode());
                         await _saveForm(context);
-
-                        Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text(widget.currentTask == null
-                              ? "Task added successfully"
-                              : "Task edited successfully"),
-                          duration: Duration(seconds: 2),
-                        ));
                       },
               ),
             )
@@ -169,9 +177,8 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
                           marginWidth: 10.0,
                         ),
                         items: taskCategories.entries
-                            .map((e) => DropdownMenuItem<IconWithText>(
-                                  value: IconWithText(
-                                      text: e.key, icon: taskCategories[e.key]),
+                            .map((e) => DropdownMenuItem<String>(
+                                  value: e.key,
                                   child: IconWithTextWidget(
                                       child: IconWithText(
                                         text: e.key,
@@ -180,8 +187,8 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
                                       marginWidth: 10.0),
                                 ))
                             .toList(),
-                        onChanged: (IconWithText e) {
-                          setState(() => _task.updateCategory(e.text));
+                        onChanged: (String e) {
+                          setState(() => _task.updateCategory(e));
                         },
                       ),
                       FormFieldTitle(text: "Priority"),
