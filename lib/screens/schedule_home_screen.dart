@@ -53,7 +53,7 @@ class ScheduleScreen extends StatelessWidget {
         Provider.of<UserProvider>(context, listen: false).currentUser;
 
     return StreamBuilder(
-      stream: TaskService.getCollectionReference().snapshots(),
+      stream: TaskService.getAllUpcomingTasks().snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         List<Widget> children = [CustomizedAppBar(title: "Schedule")];
 

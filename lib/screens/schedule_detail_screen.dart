@@ -1,14 +1,18 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:percent_indicator/linear_percent_indicator.dart";
+import "package:intl/intl.dart";
 import "package:student_app/screens/create_schedule_screen.dart";
 import "package:student_app/models/task.dart";
+import "package:student_app/services/task_service.dart";
 
 class ScheduleDetailScreen extends StatelessWidget {
   final Task task;
+  final bool allowEdit;
 
   ScheduleDetailScreen({
     @required this.task,
+    this.allowEdit = true,
   });
 
   @override
@@ -42,79 +46,100 @@ class ScheduleDetailScreen extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 20.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 5.0),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          child: Icon(Icons.date_range),
-                          margin: const EdgeInsets.only(right: 10.0),
-                        ),
-                        Text(
-                          DateFormat("EEEE, dd MMMM").format(task.dueAt),
-                        ),
-                        SizedBox(width: 60.0),
-                        Container(
-                          child: Icon(Icons.access_time),
-                          margin: const EdgeInsets.only(right: 10.0),
-                        ),
-                        Text(
-                          DateFormat("hh:mm").format(task.dueAt),
-                        ),
-                      ],
-                    ),
+            child: StreamBuilder(
+              stream: TaskService.getDocumentReference(task.id).snapshots(),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot,
+              ) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return Container(
+                    height: 100,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+
+                final document = snapshot.data;
+                final Task task =
+                    Task.fromJson(document.documentID, document.data);
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 20.0,
                   ),
-                  Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        child: Icon(Icons.linear_scale),
-                        margin: const EdgeInsets.only(right: 15.0),
+                        margin: const EdgeInsets.only(bottom: 5.0),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              child: Icon(Icons.date_range),
+                              margin: const EdgeInsets.only(right: 10.0),
+                            ),
+                            Text(
+                              DateFormat("EEEE, dd MMMM").format(task.dueAt),
+                            ),
+                            SizedBox(width: 60.0),
+                            Container(
+                              child: Icon(Icons.access_time),
+                              margin: const EdgeInsets.only(right: 10.0),
+                            ),
+                            Text(
+                              DateFormat("HH:mm").format(task.dueAt),
+                            ),
+                          ],
+                        ),
                       ),
-                      LinearPercentIndicator(
-                        width: 150,
-                        padding: EdgeInsets.zero,
-                        progressColor: priorityItems[task.priority].color,
-                        percent: priorityItems[task.priority].percentage,
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            child: Icon(Icons.linear_scale),
+                            margin: const EdgeInsets.only(right: 15.0),
+                          ),
+                          LinearPercentIndicator(
+                            width: 150,
+                            padding: EdgeInsets.zero,
+                            progressColor: priorityItems[task.priority].color,
+                            percent: priorityItems[task.priority].percentage,
+                          ),
+                        ],
+                      ),
+                      Divider(color: Colors.grey),
+                      Text(
+                        "Description",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                        ),
+                      ),
+                      Container(
+                        margin:
+                            const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 30.0),
+                        child: Text(
+                          task.description,
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(fontSize: 17),
+                        ),
                       ),
                     ],
                   ),
-                  Divider(color: Colors.grey),
-                  Text(
-                    "Description",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 30.0),
-                    child: Text(
-                      task.description,
-                      textAlign: TextAlign.justify,
-                      style: TextStyle(fontSize: 17),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => CreateScheduleScreen(
-                  currentTask: task,
-                ))),
-        child: Icon(Icons.edit),
-      ),
+      floatingActionButton: allowEdit
+          ? FloatingActionButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => CreateScheduleScreen(
+                        currentTask: task,
+                      ))),
+              child: Icon(Icons.edit),
+            )
+          : null,
     );
   }
 }

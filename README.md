@@ -9,12 +9,13 @@ An application for students to help them in managing their daily schedules and e
   <img style="margin-left: 10px;" src="screenshots/2.jpg" width="25%">
   <img style="margin-left: 10px;" src="screenshots/3.jpg" width="25%">
   <img style="margin-left: 10px;" src="screenshots/4.jpg" width="25%">
+  <img style="margin-left: 10px;" src="screenshots/5.jpg" width="25%">
 </div>
 
 ## Milestones (To Be Implemented):
 
 - [x] Authentication using google sign in firebase
-- [x] CRUD TODO List (TODO: Store them using Firestore, no Consumer<T> implemented yet in the schedule screens)
+- [x] CRUD TODO List
 - [ ] Push Notifications to remind their upcoming tasks
 - [x] Calendars
 - [x] CRUD List of Expenses

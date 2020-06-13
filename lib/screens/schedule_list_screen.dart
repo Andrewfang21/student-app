@@ -1,33 +1,51 @@
 import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
-import "package:intl/intl.dart";
-import "package:percent_indicator/linear_percent_indicator.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:student_app/models/task.dart";
 import "package:student_app/screens/schedule_detail_screen.dart";
 import "package:student_app/services/task_service.dart";
+import "package:student_app/widgets/task_card.dart";
 import "package:student_app/widgets/timeline_widget.dart";
 import "package:student_app/utils.dart";
 
 class ScheduleListScreen extends StatelessWidget {
   final String category;
+  final bool isPast;
 
   const ScheduleListScreen({
     @required this.category,
+    this.isPast = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(this.category)),
+      appBar: AppBar(
+        title: Text(isPast ? "$category History" : "$category"),
+        actions: isPast
+            ? null
+            : <Widget>[
+                IconButton(
+                  icon: Icon(Icons.history),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ScheduleListScreen(
+                            category: category,
+                            isPast: true,
+                          ))),
+                )
+              ],
+      ),
       backgroundColor: Theme.of(context).backgroundColor,
       body: PageView(
         children: <Widget>[
           Container(
               margin: const EdgeInsets.symmetric(horizontal: 10.0),
               child: StreamBuilder(
-                stream: TaskService.getCollectionReferenceByCategory(category)
-                    .snapshots(),
+                stream: isPast
+                    ? TaskService.getAllPastTasksByCategory(category)
+                        .snapshots()
+                    : TaskService.getCollectionReferenceByCategory(category)
+                        .snapshots(),
                 builder: (
                   BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot,
@@ -42,8 +60,9 @@ class ScheduleListScreen extends StatelessWidget {
 
                   if (tasks.isEmpty)
                     return Center(
-                      child:
-                          Text("You have no upcoming tasks for this category"),
+                      child: Text(isPast
+                          ? "You have no past tasks for this category"
+                          : "You have no upcoming tasks for this category"),
                     );
 
                   return TimelineWidget(
@@ -81,102 +100,6 @@ class ScheduleListScreen extends StatelessWidget {
               ))
         ],
       ),
-    );
-  }
-}
-
-class TaskCard extends StatelessWidget {
-  final Task task;
-
-  const TaskCard({
-    @required this.task,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            bottomLeft: const Radius.circular(8.0),
-            topLeft: const Radius.circular(8.0),
-          ),
-          child: Container(
-            height: 100,
-            width: 120,
-            child: Image(
-              image: AssetImage("assets/images/wallpaper-image.jpg"),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(15.0, 10.0, 10.0, .0),
-                child: Text(
-                  task.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(15.0, 5.0, 10.0, .0),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      margin: const EdgeInsets.only(right: 10.0),
-                      child: Icon(Icons.calendar_today),
-                    ),
-                    Expanded(
-                      child:
-                          Text(DateFormat("E, yyyy-MM-dd").format(task.dueAt)),
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(15.0, 5.0, 10.0, 5.0),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(right: 10.0),
-                      child: Icon(Icons.linear_scale),
-                    ),
-                    Expanded(
-                      child: LinearPercentIndicator(
-                        width: 100,
-                        padding: EdgeInsets.zero,
-                        progressColor: priorityItems[task.priority].color,
-                        percent: priorityItems[task.priority].percentage,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            bottomRight: const Radius.circular(8.0),
-            topRight: const Radius.circular(8.0),
-          ),
-          child: Container(
-            width: 8,
-            height: 100,
-            color: Theme.of(context).primaryColor,
-          ),
-        )
-      ],
     );
   }
 }
