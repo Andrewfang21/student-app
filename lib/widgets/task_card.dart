@@ -5,7 +5,7 @@ import "package:student_app/screens/schedule_detail_screen.dart";
 import "package:student_app/models/task.dart";
 
 class TaskCard extends StatelessWidget {
-  final Task task;
+  final TaskModel task;
 
   const TaskCard({
     @required this.task,

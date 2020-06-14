@@ -4,7 +4,7 @@ import "package:student_app/models/transaction.dart";
 import "package:student_app/utils.dart";
 
 class TimeSeriesChart extends StatelessWidget {
-  final List<Transaction> transactions;
+  final List<TransactionModel> transactions;
   final int tickerCount;
 
   const TimeSeriesChart({

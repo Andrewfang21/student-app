@@ -7,7 +7,7 @@ import "package:student_app/models/task.dart";
 import "package:student_app/services/task_service.dart";
 
 class ScheduleDetailScreen extends StatelessWidget {
-  final Task task;
+  final TaskModel task;
   final bool allowEdit;
 
   ScheduleDetailScreen({
@@ -59,8 +59,8 @@ class ScheduleDetailScreen extends StatelessWidget {
                   );
 
                 final document = snapshot.data;
-                final Task task =
-                    Task.fromJson(document.documentID, document.data);
+                final TaskModel task =
+                    TaskModel.fromJson(document.documentID, document.data);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(

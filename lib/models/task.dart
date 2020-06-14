@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-class Task {
+class TaskModel {
   String id;
   String name;
   String description;
@@ -11,7 +11,7 @@ class Task {
   bool isCompleted;
   String creatorId;
 
-  Task({
+  TaskModel({
     id,
     name,
     description,
@@ -29,7 +29,7 @@ class Task {
         this.createdAt = DateTime.now(),
         this.isCompleted = false;
 
-  Task.fromJson(String id, Map<String, dynamic> json) {
+  TaskModel.fromJson(String id, Map<String, dynamic> json) {
     if (json != null) {
       this.id = id;
       this.name = json["name"];

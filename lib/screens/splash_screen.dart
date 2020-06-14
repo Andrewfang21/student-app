@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(Duration(seconds: 3), () async {
       final FirebaseUser firebaseUser =
           await FirebaseAuth.instance.currentUser();
-      final User currentUser = await UserSharedPreference.getActiveUser();
+      final UserModel currentUser = await UserSharedPreference.getActiveUser();
 
       if (firebaseUser != null && currentUser != null) {
         Provider.of<UserProvider>(context, listen: false).currentUser =

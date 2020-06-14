@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  User currentUser;
+  UserModel currentUser;
   bool _shouldLogout = false;
 
   Future<bool> _handleLogout() {

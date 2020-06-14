@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-class Transaction with ChangeNotifier {
+class TransactionModel {
   String id;
   String name;
   String description;
@@ -10,7 +10,7 @@ class Transaction with ChangeNotifier {
   bool isIncome;
   String creatorId;
 
-  Transaction({
+  TransactionModel({
     name,
     description,
     category,
@@ -25,7 +25,7 @@ class Transaction with ChangeNotifier {
         this.date = date ?? DateTime.now(),
         this.isIncome = isIncome ?? false;
 
-  Transaction.fromJson(String id, Map<String, dynamic> json) {
+  TransactionModel.fromJson(String id, Map<String, dynamic> json) {
     if (json != null) {
       this.id = id;
       this.name = json["name"];
@@ -48,7 +48,7 @@ class Transaction with ChangeNotifier {
         "creatorId": creatorId,
       };
 
-  void clone(Transaction transaction) {
+  void clone(TransactionModel transaction) {
     this.id = transaction.id;
     this.name = transaction.name;
     this.description = transaction.description;

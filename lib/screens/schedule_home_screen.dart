@@ -16,7 +16,7 @@ import "package:student_app/models/user.dart";
 import "package:student_app/utils.dart";
 
 class ScheduleScreen extends StatelessWidget {
-  List<Widget> _buildIntroSection(BuildContext context, User user) {
+  List<Widget> _buildIntroSection(BuildContext context, UserModel user) {
     return [
       Container(
         width: double.infinity,
@@ -49,11 +49,11 @@ class ScheduleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final User _currentUser =
+    final UserModel _currentUser =
         Provider.of<UserProvider>(context, listen: false).currentUser;
 
     return StreamBuilder(
-      stream: TaskService.getAllUpcomingTasks().snapshots(),
+      stream: TaskService.getAllUpcomingTasks(_currentUser.uid).snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         List<Widget> children = [CustomizedAppBar(title: "Schedule")];
 
@@ -70,14 +70,10 @@ class ScheduleScreen extends StatelessWidget {
           );
         }
 
-        final List<Task> tasks = snapshot.data.documents
-            .map(
-                (document) => Task.fromJson(document.documentID, document.data))
-            .where((document) =>
-                document.creatorId == _currentUser.uid &&
-                document.dueAt.isAfter(DateTime.now()))
-            .toList()
-              ..sort((x, y) => x.dueAt.isBefore(y.dueAt) ? -1 : 1);
+        final List<TaskModel> tasks = snapshot.data.documents
+            .map((document) =>
+                TaskModel.fromJson(document.documentID, document.data))
+            .toList();
 
         children.addAll(<Widget>[
           Container(
@@ -116,15 +112,17 @@ class ScheduleScreen extends StatelessWidget {
 }
 
 class TaskCategoryCarousel extends StatelessWidget {
-  final List<Task> tasks;
+  final List<TaskModel> tasks;
 
   const TaskCategoryCarousel({
     @required this.tasks,
   });
 
-  String _getTotalTasks(List<Task> tasks, String category) {
-    int taskCount =
-        tasks.where((Task task) => task.category == category).toList().length;
+  String _getTotalTasks(List<TaskModel> tasks, String category) {
+    int taskCount = tasks
+        .where((TaskModel task) => task.category == category)
+        .toList()
+        .length;
     return taskCount < 2 ? "$taskCount task" : "$taskCount tasks";
   }
 
@@ -182,15 +180,15 @@ class TaskCategoryCarousel extends StatelessWidget {
 }
 
 class TaskModalBottomSheet extends StatelessWidget {
-  final List<Task> tasks;
+  final List<TaskModel> tasks;
   const TaskModalBottomSheet({
     @required this.tasks,
   });
 
   @override
   Widget build(BuildContext context) {
-    final List<Task> todayTasks = tasks
-        .where((Task task) =>
+    final List<TaskModel> todayTasks = tasks
+        .where((TaskModel task) =>
             task.dueAt.difference(DateTime.now()).inDays == 0 &&
             task.dueAt.day == DateTime.now().day)
         .toList();

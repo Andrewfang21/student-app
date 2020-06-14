@@ -10,15 +10,15 @@ class TaskService {
     return Firestore.instance.document("tasks/$id");
   }
 
-  static Future<DocumentReference> createTask(Task task) {
+  static Future<DocumentReference> createTask(TaskModel task) {
     return getCollectionReference().add(task.toJson());
   }
 
-  static Future<void> updateTask(Task task) async {
+  static Future<void> updateTask(TaskModel task) async {
     return getDocumentReference(task.id).updateData(task.toJson());
   }
 
-  static Future<void> deleteTask(Task task) {
+  static Future<void> deleteTask(TaskModel task) {
     return getDocumentReference(task.id).delete();
   }
 
@@ -39,25 +39,40 @@ class TaskService {
         .orderBy("dueAt");
   }
 
-  static Query getAllUpcomingTasks() {
+  static Query getAllUpcomingTasks(String userID) {
     final DateTime now = DateTime.now();
 
     return getCollectionReference()
+        .where("creatorId", isEqualTo: userID)
         .where("dueAt",
             isGreaterThanOrEqualTo: DateTime(now.year, now.month, now.day))
         .orderBy("dueAt");
   }
 
-  static Query getAllPastTasksByCategory(String category) {
+  static Query getAllUpcomingTasksByCategory(String userID, String category) {
     final DateTime now = DateTime.now();
 
     return getCollectionReference()
+        .where("creatorId", isEqualTo: userID)
+        .where("category", isEqualTo: category)
+        .where("dueAt",
+            isGreaterThanOrEqualTo: DateTime(now.year, now.month, now.day))
+        .orderBy("dueAt");
+  }
+
+  static Query getAllPastTasksByCategory(String userID, String category) {
+    final DateTime now = DateTime.now();
+
+    return getCollectionReference()
+        .where("creatorId", isEqualTo: userID)
         .where("category", isEqualTo: category)
         .where("dueAt", isLessThan: DateTime(now.year, now.month, now.day))
         .orderBy("dueAt", descending: true);
   }
 
-  static Query getAllTasks() {
-    return getCollectionReference().orderBy("dueAt");
+  static Query getAllTasks(String userID) {
+    return getCollectionReference()
+        .where("creatorId", isEqualTo: userID)
+        .orderBy("dueAt");
   }
 }

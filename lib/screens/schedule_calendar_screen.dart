@@ -1,13 +1,15 @@
 import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
-import "package:student_app/screens/schedule_detail_screen.dart";
-import "package:student_app/utils.dart";
+import "package:provider/provider.dart";
 import "package:table_calendar/table_calendar.dart";
+import "package:timeline_list/timeline_model.dart";
 import "package:student_app/models/task.dart";
+import "package:student_app/providers/user_provider.dart";
+import "package:student_app/screens/schedule_detail_screen.dart";
 import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/task_card.dart";
 import "package:student_app/widgets/timeline_widget.dart";
-import "package:timeline_list/timeline_model.dart";
+import "package:student_app/utils.dart";
 
 class ScheduleCalendarScreen extends StatelessWidget {
   Map<DateTime, List<dynamic>> _groupTasks(List<dynamic> allTasks) {
@@ -27,13 +29,16 @@ class ScheduleCalendarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String userID =
+        Provider.of<UserProvider>(context, listen: false).currentUserID;
+
     return Scaffold(
         appBar: AppBar(title: Text("Calendar")),
         backgroundColor: Theme.of(context).backgroundColor,
         body: Container(
           height: MediaQuery.of(context).size.height,
           child: StreamBuilder(
-            stream: TaskService.getAllTasks().snapshots(),
+            stream: TaskService.getAllTasks(userID).snapshots(),
             builder: (
               BuildContext context,
               AsyncSnapshot<QuerySnapshot> snapshot,
@@ -44,7 +49,7 @@ class ScheduleCalendarScreen extends StatelessWidget {
 
               List<dynamic> allTasks = snapshot.data.documents
                   .map((document) =>
-                      Task.fromJson(document.documentID, document.data))
+                      TaskModel.fromJson(document.documentID, document.data))
                   .toList();
 
               Map<DateTime, List<dynamic>> _tasks = {};
@@ -125,27 +130,30 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           ),
         ),
         Expanded(
-          child: TimelineWidget(
-            items: _selectedTasks,
-            builder: (BuildContext context, int index) {
-              final Task task = _selectedTasks[index];
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: TimelineWidget(
+              items: _selectedTasks,
+              builder: (BuildContext context, int index) {
+                final TaskModel task = _selectedTasks[index];
 
-              return TimelineModel(
-                  TimelineCard(
-                    onTapHandler: () =>
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => ScheduleDetailScreen(
-                                  task: task,
-                                  allowEdit: false,
-                                ))),
-                    onLongPressHandler: null,
-                    child: TaskCard(task: task),
-                  ),
-                  icon: Icon(taskCategories[task.category]),
-                  iconBackground: Theme.of(context).accentColor,
-                  isFirst: index == 0,
-                  isLast: index == _selectedTasks.length);
-            },
+                return TimelineModel(
+                    TimelineCard(
+                      onTapHandler: () =>
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => ScheduleDetailScreen(
+                                    task: task,
+                                    allowEdit: false,
+                                  ))),
+                      onLongPressHandler: null,
+                      child: TaskCard(task: task),
+                    ),
+                    icon: Icon(taskCategories[task.category]),
+                    iconBackground: Theme.of(context).accentColor,
+                    isFirst: index == 0,
+                    isLast: index == _selectedTasks.length);
+              },
+            ),
           ),
         ),
       ],

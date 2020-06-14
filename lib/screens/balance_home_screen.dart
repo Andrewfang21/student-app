@@ -1,7 +1,7 @@
 import "dart:math";
 
 import "package:flutter/material.dart";
-import "package:cloud_firestore/cloud_firestore.dart" as c;
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
@@ -16,7 +16,7 @@ import "package:student_app/providers/user_provider.dart";
 import "package:student_app/utils.dart";
 
 class BalanceHomeScreen extends StatelessWidget {
-  final User currentUser;
+  final UserModel currentUser;
 
   BalanceHomeScreen({
     @required this.currentUser,
@@ -24,12 +24,16 @@ class BalanceHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String userID =
+        Provider.of<UserProvider>(context, listen: false).currentUserID;
+
     return SingleChildScrollView(
       child: StreamBuilder(
-          stream: TransactionService.getCollectionReference().snapshots(),
+          stream: TransactionService.getCollectionReferenceOrderByDate(userID)
+              .snapshots(),
           builder: (
             BuildContext context,
-            AsyncSnapshot<c.QuerySnapshot> snapshot,
+            AsyncSnapshot<QuerySnapshot> snapshot,
           ) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return Column(
@@ -43,13 +47,9 @@ class BalanceHomeScreen extends StatelessWidget {
                 ],
               );
 
-            final List<Transaction> transactions = snapshot.data.documents
-                .map((document) =>
-                    Transaction.fromJson(document.documentID, document.data))
-                .where((document) =>
-                    document.creatorId ==
-                    Provider.of<UserProvider>(context, listen: false)
-                        .currentUserID)
+            final List<TransactionModel> transactions = snapshot.data.documents
+                .map((document) => TransactionModel.fromJson(
+                    document.documentID, document.data))
                 .toList();
 
             return Column(
@@ -128,8 +128,8 @@ class BalanceHomeScreen extends StatelessWidget {
 }
 
 class BalanceScreenHeader extends StatelessWidget {
-  final User currentUser;
-  final List<Transaction> transactions;
+  final UserModel currentUser;
+  final List<TransactionModel> transactions;
 
   const BalanceScreenHeader({
     @required this.currentUser,
@@ -138,7 +138,7 @@ class BalanceScreenHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Transaction> _recentTransactions =
+    final List<TransactionModel> _recentTransactions =
         TransactionHelper.filterByDateRange(transactions, 7);
     final String netIncome = NumberFormat("#,##0.00").format(
       TransactionHelper.getNetIncome(_recentTransactions),
@@ -254,7 +254,7 @@ class BalanceScreenHeader extends StatelessWidget {
 }
 
 class TransactionCardCarousel extends StatelessWidget {
-  final Transaction transaction;
+  final TransactionModel transaction;
   const TransactionCardCarousel({
     @required this.transaction,
   });

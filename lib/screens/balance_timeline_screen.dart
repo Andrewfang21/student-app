@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:cloud_firestore/cloud_firestore.dart" as c;
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:provider/provider.dart";
 import "package:student_app/screens/balance_detail_screen.dart";
@@ -12,30 +12,29 @@ import "package:student_app/utils.dart";
 class BalanceTimelineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final String userID =
+        Provider.of<UserProvider>(context, listen: false).currentUserID;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Transactions History"),
       ),
       backgroundColor: Theme.of(context).backgroundColor,
       body: StreamBuilder(
-        stream:
-            TransactionService.getCollectionReferenceOrderByDate().snapshots(),
+        stream: TransactionService.getCollectionReferenceOrderByDate(userID)
+            .snapshots(),
         builder: (
           BuildContext context,
-          AsyncSnapshot<c.QuerySnapshot> snapshot,
+          AsyncSnapshot<QuerySnapshot> snapshot,
         ) {
           List<Widget> child = [];
 
           if (snapshot.connectionState == ConnectionState.waiting)
             child.add(Center(child: CircularProgressIndicator()));
           else {
-            final List<Transaction> transactions = snapshot.data.documents
-                .map((document) =>
-                    Transaction.fromJson(document.documentID, document.data))
-                .where((document) =>
-                    document.creatorId ==
-                    Provider.of<UserProvider>(context, listen: false)
-                        .currentUserID)
+            final List<TransactionModel> transactions = snapshot.data.documents
+                .map((document) => TransactionModel.fromJson(
+                    document.documentID, document.data))
                 .toList();
 
             if (transactions.isEmpty)
@@ -48,7 +47,7 @@ class BalanceTimelineScreen extends StatelessWidget {
                   child: TimelineWidget(
                     items: transactions,
                     builder: (BuildContext context, int index) {
-                      final Transaction transaction = transactions[index];
+                      final TransactionModel transaction = transactions[index];
 
                       return TimelineModel(
                         TimelineCard(
@@ -88,7 +87,7 @@ class BalanceTimelineScreen extends StatelessWidget {
 }
 
 class TransactionCard extends StatelessWidget {
-  final Transaction transaction;
+  final TransactionModel transaction;
 
   const TransactionCard({
     @required this.transaction,

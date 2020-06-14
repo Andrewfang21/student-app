@@ -2,9 +2,9 @@ import "package:flutter/material.dart";
 import "package:student_app/models/user.dart";
 
 class UserProvider with ChangeNotifier {
-  User _currentUser;
+  UserModel _currentUser;
 
-  set currentUser(User user) => _currentUser = User(
+  set currentUser(UserModel user) => _currentUser = UserModel(
         uid: user.uid,
         displayName: user.displayName,
         email: user.email,

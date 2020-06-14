@@ -51,12 +51,12 @@ class TransactionHelper {
   static const String INCOME = "Income";
 
   static List<dynamic> filterByStatus(
-    List<Transaction> transactions,
+    List<TransactionModel> transactions,
     String status,
   ) {
-    List<Transaction> selectedTransactions = [];
+    List<TransactionModel> selectedTransactions = [];
 
-    transactions.forEach((Transaction transaction) {
+    transactions.forEach((TransactionModel transaction) {
       if (status == TransactionHelper.EXPENSE && !transaction.isIncome ||
           status == TransactionHelper.INCOME && transaction.isIncome) {
         selectedTransactions.add(transaction);
@@ -65,13 +65,13 @@ class TransactionHelper {
     return selectedTransactions;
   }
 
-  static List<Transaction> filterByDateRange(
-    List<Transaction> transactions,
+  static List<TransactionModel> filterByDateRange(
+    List<TransactionModel> transactions,
     int days,
   ) {
     return transactions
         .where(
-          (Transaction transaction) =>
+          (TransactionModel transaction) =>
               transaction.date.isAfter(
                 DateTime.now().subtract(Duration(days: days)),
               ) &&
@@ -83,10 +83,10 @@ class TransactionHelper {
   }
 
   static List<TimeSeriesTransaction> getSerializedTransactions(
-    List<Transaction> transactions,
+    List<TransactionModel> transactions,
   ) {
     var transactionMap = {};
-    transactions.forEach((Transaction transaction) {
+    transactions.forEach((TransactionModel transaction) {
       DateTime key = transaction.date;
       if (transactionMap.containsKey(key))
         transactionMap[key] += transaction.amount;
@@ -104,41 +104,41 @@ class TransactionHelper {
   }
 
   static double getAmountByCategory(
-    List<Transaction> transactions,
+    List<TransactionModel> transactions,
     String category,
   ) {
     double amount = .0;
-    transactions.forEach((Transaction transaction) {
+    transactions.forEach((TransactionModel transaction) {
       if (transaction.category == category) amount += transaction.amount;
     });
     return amount;
   }
 
-  static List<Transaction> getTransactionsByStatus(
-      List<Transaction> transactions, String status) {
-    return [...transactions].where((Transaction transaction) {
+  static List<TransactionModel> getTransactionsByStatus(
+      List<TransactionModel> transactions, String status) {
+    return [...transactions].where((TransactionModel transaction) {
       return (status == INCOME && transaction.isIncome ||
           status == EXPENSE && !transaction.isIncome);
     }).toList();
   }
 
-  static double getIncome(List<Transaction> transactions) {
+  static double getIncome(List<TransactionModel> transactions) {
     double income = .0;
-    transactions.forEach((Transaction transaction) =>
+    transactions.forEach((TransactionModel transaction) =>
         transaction.isIncome ? income += transaction.amount : null);
 
     return income;
   }
 
-  static double getExpense(List<Transaction> transactions) {
+  static double getExpense(List<TransactionModel> transactions) {
     double expense = .0;
-    transactions.forEach((Transaction transaction) =>
+    transactions.forEach((TransactionModel transaction) =>
         transaction.isIncome ? null : expense += transaction.amount);
 
     return expense;
   }
 
-  static double getNetIncome(List<Transaction> transactions) {
+  static double getNetIncome(List<TransactionModel> transactions) {
     return getIncome(transactions) - getExpense(transactions);
   }
 }

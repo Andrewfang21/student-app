@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
+import "package:provider/provider.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:student_app/models/task.dart";
+import "package:student_app/providers/user_provider.dart";
 import "package:student_app/screens/schedule_detail_screen.dart";
 import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/task_card.dart";
@@ -19,6 +21,10 @@ class ScheduleListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String userID =
+        Provider.of<UserProvider>(context, listen: false).currentUserID;
+
+    print("this is the userID: $userID");
     return Scaffold(
       appBar: AppBar(
         title: Text(isPast ? "$category History" : "$category"),
@@ -42,9 +48,10 @@ class ScheduleListScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 10.0),
               child: StreamBuilder(
                 stream: isPast
-                    ? TaskService.getAllPastTasksByCategory(category)
+                    ? TaskService.getAllPastTasksByCategory(userID, category)
                         .snapshots()
-                    : TaskService.getCollectionReferenceByCategory(category)
+                    : TaskService.getAllUpcomingTasksByCategory(
+                            userID, category)
                         .snapshots(),
                 builder: (
                   BuildContext context,
@@ -53,9 +60,9 @@ class ScheduleListScreen extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting)
                     return Center(child: CircularProgressIndicator());
 
-                  List<Task> tasks = snapshot.data.documents
-                      .map((document) =>
-                          Task.fromJson(document.documentID, document.data))
+                  List<TaskModel> tasks = snapshot.data.documents
+                      .map((document) => TaskModel.fromJson(
+                          document.documentID, document.data))
                       .toList();
 
                   if (tasks.isEmpty)
@@ -68,7 +75,7 @@ class ScheduleListScreen extends StatelessWidget {
                   return TimelineWidget(
                       items: tasks,
                       builder: (BuildContext context, int index) {
-                        final Task task = tasks[index];
+                        final TaskModel task = tasks[index];
 
                         return TimelineModel(
                             TimelineCard(

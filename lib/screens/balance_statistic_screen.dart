@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:cloud_firestore/cloud_firestore.dart" as c;
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 import "package:student_app/services/transaction_service.dart";
@@ -89,7 +89,7 @@ class _BalanceStatisticScreenState extends State<BalanceStatisticScreen> {
   }
 
   List<Widget> _buildPieChartSection(
-    List<Transaction> currentTransactions,
+    List<TransactionModel> currentTransactions,
     double amount,
     String status,
   ) {
@@ -142,6 +142,9 @@ class _BalanceStatisticScreenState extends State<BalanceStatisticScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String userID =
+        Provider.of<UserProvider>(context, listen: false).currentUserID;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Transactions Statistics"),
@@ -155,10 +158,14 @@ class _BalanceStatisticScreenState extends State<BalanceStatisticScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: StreamBuilder(
-          stream: TransactionService.getCollectionReference().snapshots(),
+          stream: TransactionService.getCollectionReferenceInDateRange(
+            userID,
+            _currentRangeDate.left,
+            _currentRangeDate.right,
+          ).snapshots(),
           builder: (
             BuildContext context,
-            AsyncSnapshot<c.QuerySnapshot> snapshot,
+            AsyncSnapshot<QuerySnapshot> snapshot,
           ) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return PageView(
@@ -170,15 +177,10 @@ class _BalanceStatisticScreenState extends State<BalanceStatisticScreen> {
               );
             }
 
-            final List<Transaction> recentTransactions = snapshot.data.documents
-                .map((document) =>
-                    Transaction.fromJson(document.documentID, document.data))
-                .where((document) =>
-                    document.creatorId ==
-                        Provider.of<UserProvider>(context, listen: false)
-                            .currentUserID &&
-                    document.date.isAfter(_currentRangeDate.left) &&
-                    document.date.isBefore(_currentRangeDate.right))
+            final List<TransactionModel> recentTransactions = snapshot
+                .data.documents
+                .map((document) => TransactionModel.fromJson(
+                    document.documentID, document.data))
                 .toList();
             final double income =
                 TransactionHelper.getIncome(recentTransactions);

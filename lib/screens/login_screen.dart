@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = true);
 
       FirebaseUser firebaseUser = await signInFirebaseWithGoogle(googleSignIn);
-      User currentUser = User(
+      UserModel currentUser = UserModel(
         uid: firebaseUser.uid,
         displayName: firebaseUser.displayName,
         email: firebaseUser.email,

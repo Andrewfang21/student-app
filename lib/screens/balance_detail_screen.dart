@@ -10,7 +10,7 @@ import "package:student_app/widgets/transaction_form.dart";
 import "package:student_app/utils.dart";
 
 class BalanceDetailScreen extends StatefulWidget {
-  final Transaction currentTransaction;
+  final TransactionModel currentTransaction;
 
   BalanceDetailScreen({
     this.currentTransaction,
@@ -30,7 +30,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
   CustomFormField transactionName;
   CustomFormField transactionDescription;
   CustomFormField transactionAmount;
-  Transaction _transaction;
+  TransactionModel _transaction;
   SelectRadio _selectedCategory;
 
   bool _isLoading = false;
@@ -52,7 +52,7 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
       labelText: "Amount (in HKD)",
     );
 
-    _transaction = Transaction(
+    _transaction = TransactionModel(
       creatorId:
           Provider.of<UserProvider>(context, listen: false).currentUserID,
     );

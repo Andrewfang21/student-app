@@ -1,19 +1,19 @@
 import "package:flutter/foundation.dart";
 
-class User {
+class UserModel {
   String uid;
   String displayName;
   String email;
   String photoUrl;
 
-  User({
+  UserModel({
     @required this.uid,
     @required this.displayName,
     @required this.email,
     @required this.photoUrl,
   });
 
-  User.fromJson(Map<String, dynamic> json)
+  UserModel.fromJson(Map<String, dynamic> json)
       : uid = json["uid"],
         displayName = json["name"],
         email = json["email"],

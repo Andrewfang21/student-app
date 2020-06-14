@@ -9,7 +9,7 @@ import "package:student_app/widgets/transaction_form.dart";
 import "package:student_app/utils.dart";
 
 class CreateScheduleScreen extends StatefulWidget {
-  final Task currentTask;
+  final TaskModel currentTask;
 
   CreateScheduleScreen({
     this.currentTask,
@@ -23,7 +23,7 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   CustomFormField taskName;
   CustomFormField taskDescription;
-  Task _task;
+  TaskModel _task;
 
   bool _isLoading = false;
 
@@ -40,7 +40,7 @@ class _CreateScheduleScreenState extends State<CreateScheduleScreen> {
       labelText: "Description",
     );
 
-    _task = Task(
+    _task = TaskModel(
       id: widget.currentTask?.id,
       creatorId:
           Provider.of<UserProvider>(context, listen: false).currentUserID,

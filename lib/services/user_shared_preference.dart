@@ -6,14 +6,14 @@ import "package:student_app/models/user.dart";
 class UserSharedPreference {
   static final String key = "user";
 
-  static Future<User> getActiveUser() async {
+  static Future<UserModel> getActiveUser() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key) != null
-        ? User.fromJson(json.decode(prefs.getString(key)))
+        ? UserModel.fromJson(json.decode(prefs.getString(key)))
         : null;
   }
 
-  static Future<void> setActiveUser(User user) async {
+  static Future<void> setActiveUser(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(
       key,
