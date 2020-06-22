@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Provider.of<UserProvider>(context, listen: false).currentUser =
           currentUser;
       Provider.of<AppStateProvider>(context, listen: false).activePageName =
-          PageName.Balance.toString();
+          PageName.Transaction.toString();
 
       setState(() => _isLoading = false);
 

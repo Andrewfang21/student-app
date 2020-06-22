@@ -4,17 +4,17 @@ import "package:provider/provider.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:student_app/models/task.dart";
 import "package:student_app/providers/user_provider.dart";
-import "package:student_app/screens/schedule_detail_screen.dart";
+import "package:student_app/screens/task_detail_screen.dart";
 import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/task_card.dart";
 import "package:student_app/widgets/timeline_widget.dart";
 import "package:student_app/utils.dart";
 
-class ScheduleListScreen extends StatelessWidget {
+class TaskListScreen extends StatelessWidget {
   final String category;
   final bool isPast;
 
-  const ScheduleListScreen({
+  const TaskListScreen({
     @required this.category,
     this.isPast = false,
   });
@@ -24,7 +24,6 @@ class ScheduleListScreen extends StatelessWidget {
     final String userID =
         Provider.of<UserProvider>(context, listen: false).currentUserID;
 
-    print("this is the userID: $userID");
     return Scaffold(
       appBar: AppBar(
         title: Text(isPast ? "$category History" : "$category"),
@@ -34,7 +33,7 @@ class ScheduleListScreen extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.history),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ScheduleListScreen(
+                      builder: (_) => TaskListScreen(
                             category: category,
                             isPast: true,
                           ))),
@@ -82,7 +81,7 @@ class ScheduleListScreen extends StatelessWidget {
                               child: TaskCard(task: task),
                               onTapHandler: () =>
                                   Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (_) => ScheduleDetailScreen(
+                                      builder: (_) => TaskDetailScreen(
                                             task: task,
                                           ))),
                               onLongPressHandler: () => showDialog(

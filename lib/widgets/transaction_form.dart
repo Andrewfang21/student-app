@@ -1,17 +1,18 @@
 import "package:flutter/material.dart";
 
-class CustomFormField {
-  TextEditingController controller = TextEditingController();
-  FocusNode focusNode = FocusNode();
-  String initialValue;
-  String labelText;
+class CustomForm {
+  final TextEditingController nameFieldController = TextEditingController();
+  final TextEditingController descriptionFieldController =
+      TextEditingController();
+  final TextEditingController amountFieldController = TextEditingController();
 
-  CustomFormField({
-    controller,
-    focusNode,
-    this.initialValue = "",
-    @required this.labelText,
-  });
+  final FocusNode nameFocusNode = FocusNode();
+  final FocusNode descriptionFocusNode = FocusNode();
+  final FocusNode amountFocusNode = FocusNode();
+
+  final String nameLabelText = "Name";
+  final String descriptionLabelText = "Description";
+  final String amountLabelText = "Amount (in HKD)";
 }
 
 class FormFieldTitle extends StatelessWidget {

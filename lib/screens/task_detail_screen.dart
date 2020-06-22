@@ -2,15 +2,15 @@ import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:percent_indicator/linear_percent_indicator.dart";
 import "package:intl/intl.dart";
-import "package:student_app/screens/create_schedule_screen.dart";
 import "package:student_app/models/task.dart";
+import "package:student_app/screens/task_edit_screen.dart";
 import "package:student_app/services/task_service.dart";
 
-class ScheduleDetailScreen extends StatelessWidget {
+class TaskDetailScreen extends StatelessWidget {
   final TaskModel task;
   final bool allowEdit;
 
-  ScheduleDetailScreen({
+  TaskDetailScreen({
     @required this.task,
     this.allowEdit = true,
   });
@@ -19,50 +19,46 @@ class ScheduleDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            expandedHeight: 300,
-            backgroundColor: Theme.of(context).backgroundColor,
-            leading: Container(),
-            flexibleSpace: FlexibleSpaceBar(
-              background: ClipPath(
-                clipper: CustomShapeClipper(),
-                child: Image(
-                  image: AssetImage("assets/images/wallpaper-image.jpg"),
-                  fit: BoxFit.cover,
+      body: StreamBuilder(
+        stream: TaskService.getDocumentReference(task.id).snapshots(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<DocumentSnapshot> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return Container(
+              height: 100,
+              child: Center(child: CircularProgressIndicator()),
+            );
+
+          return CustomScrollView(
+            slivers: <Widget>[
+              SliverAppBar(
+                expandedHeight: 300,
+                backgroundColor: Theme.of(context).backgroundColor,
+                leading: Container(),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: ClipPath(
+                    clipper: CustomShapeClipper(),
+                    child: Image(
+                      image: AssetImage("assets/images/wallpaper-image.jpg"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  title: Text(
+                    task.name,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  titlePadding: const EdgeInsets.fromLTRB(20.0, .0, 80.0, 25.0),
                 ),
               ),
-              title: Text(
-                task.name,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              titlePadding: const EdgeInsets.fromLTRB(20.0, .0, 80.0, 25.0),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: StreamBuilder(
-              stream: TaskService.getDocumentReference(task.id).snapshots(),
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot,
-              ) {
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  return Container(
-                    height: 100,
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-
-                final document = snapshot.data;
-                final TaskModel task =
-                    TaskModel.fromJson(document.documentID, document.data);
-
-                return Padding(
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20.0,
                     vertical: 20.0,
@@ -125,16 +121,16 @@ class ScheduleDetailScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
       floatingActionButton: allowEdit
           ? FloatingActionButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => CreateScheduleScreen(
+                  builder: (_) => TaskEditScreen(
                         currentTask: task,
                       ))),
               child: Icon(Icons.edit),

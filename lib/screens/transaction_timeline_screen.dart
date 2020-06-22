@@ -2,14 +2,14 @@ import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:provider/provider.dart";
-import "package:student_app/screens/balance_detail_screen.dart";
+import "package:student_app/screens/transaction_detail_screen.dart";
 import "package:student_app/services/transaction_service.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/widgets/timeline_widget.dart";
 import "package:student_app/utils.dart";
 
-class BalanceTimelineScreen extends StatelessWidget {
+class TransactionTimelineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String userID =
@@ -51,11 +51,11 @@ class BalanceTimelineScreen extends StatelessWidget {
 
                       return TimelineModel(
                         TimelineCard(
-                          onTapHandler: () =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => BalanceDetailScreen(
-                                        currentTransaction: transaction,
-                                      ))),
+                          onTapHandler: () => print("pushed"),
+                          // Navigator.of(context).push(MaterialPageRoute(
+                          //     builder: (_) => TransactionDetailScreen(
+                          //           currentTransaction: transaction,
+                          //         ))),
                           onLongPressHandler: () => showDialog(
                             context: context,
                             builder: (_) => AlertDialog(

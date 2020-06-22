@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:percent_indicator/linear_percent_indicator.dart";
-import "package:student_app/screens/schedule_detail_screen.dart";
+import "package:student_app/screens/task_detail_screen.dart";
 import "package:student_app/models/task.dart";
 
 class TaskCard extends StatelessWidget {

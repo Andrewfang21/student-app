@@ -1,6 +1,6 @@
 enum PageName {
-  Balance,
-  Schedule,
+  Transaction,
+  Task,
   Home,
 }
 

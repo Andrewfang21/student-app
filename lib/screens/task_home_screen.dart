@@ -5,17 +5,17 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 import "package:student_app/models/task.dart";
-import "package:student_app/screens/schedule_calendar_screen.dart";
-import "package:student_app/screens/schedule_detail_screen.dart";
-import "package:student_app/screens/schedule_list_screen.dart";
-import "package:student_app/screens/schedule_setting_screen.dart";
+import "package:student_app/screens/task_calendar_screen.dart";
+import "package:student_app/screens/task_detail_screen.dart";
+import "package:student_app/screens/task_list_screen.dart";
+import "package:student_app/screens/task_setting_screen.dart";
 import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/utils.dart";
 
-class ScheduleScreen extends StatelessWidget {
+class TaskScreen extends StatelessWidget {
   List<Widget> _buildIntroSection(BuildContext context, UserModel user) {
     return [
       Container(
@@ -55,7 +55,7 @@ class ScheduleScreen extends StatelessWidget {
     return StreamBuilder(
       stream: TaskService.getAllUpcomingTasks(_currentUser.uid).snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        List<Widget> children = [CustomizedAppBar(title: "Schedule")];
+        List<Widget> children = [CustomizedAppBar(title: "Task")];
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           children.add(Container(
@@ -147,7 +147,7 @@ class TaskCategoryCarousel extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (_) => ScheduleListScreen(category: category)),
+                        builder: (_) => TaskListScreen(category: category)),
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(10.0),
@@ -238,7 +238,7 @@ class TaskModalBottomSheet extends StatelessWidget {
                           return GestureDetector(
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (_) => ScheduleDetailScreen(
+                                  builder: (_) => TaskDetailScreen(
                                       task: todayTasks[index])),
                             ),
                             child: Card(
@@ -377,8 +377,7 @@ class _TitleCardState extends State<TitleCard> {
                         color: Colors.grey[100],
                       ),
                       onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => ScheduleCalendarScreen()),
+                        MaterialPageRoute(builder: (_) => TaskCalendarScreen()),
                       ),
                     ),
                     IconButton(
@@ -389,8 +388,7 @@ class _TitleCardState extends State<TitleCard> {
                         color: Colors.grey[100],
                       ),
                       onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => ScheduleSettingScreen()),
+                        MaterialPageRoute(builder: (_) => TaskSettingScreen()),
                       ),
                     )
                   ],

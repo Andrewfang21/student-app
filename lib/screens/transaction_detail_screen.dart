@@ -1,6 +1,4 @@
 import "package:flutter/material.dart";
-import "package:provider/provider.dart";
-import "package:student_app/providers/user_provider.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/services/transaction_service.dart";
 import "package:student_app/widgets/date_form_button.dart";
@@ -9,91 +7,61 @@ import "package:student_app/widgets/radio_field.dart";
 import "package:student_app/widgets/transaction_form.dart";
 import "package:student_app/utils.dart";
 
-class BalanceDetailScreen extends StatefulWidget {
-  final TransactionModel currentTransaction;
+class TransactionDetailScreen extends StatefulWidget {
+  final CustomForm form;
+  final TransactionModel transaction;
+  final String context;
 
-  BalanceDetailScreen({
-    this.currentTransaction,
+  const TransactionDetailScreen({
+    @required this.context,
+    @required this.form,
+    @required this.transaction,
   });
 
   @override
-  _BalanceDetailScreenState createState() => _BalanceDetailScreenState();
+  _TransactionDetailScreenState createState() =>
+      _TransactionDetailScreenState();
 }
 
-class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
+class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final List<RadioOption> _transactionCategoryList = [
     RadioOption(index: 0, text: "Income"),
     RadioOption(index: 1, text: "Expense"),
   ];
 
-  CustomFormField transactionName;
-  CustomFormField transactionDescription;
-  CustomFormField transactionAmount;
-  TransactionModel _transaction;
   SelectRadio _selectedCategory;
-
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
-    transactionName = CustomFormField(
-      initialValue: widget.currentTransaction?.name,
-      labelText: "Name",
-    );
-    transactionDescription = CustomFormField(
-      initialValue: widget.currentTransaction?.description,
-      labelText: "Description",
-    );
-    transactionAmount = CustomFormField(
-      initialValue: widget.currentTransaction?.amount?.toStringAsFixed(2),
-      labelText: "Amount (in HKD)",
-    );
-
-    _transaction = TransactionModel(
-      creatorId:
-          Provider.of<UserProvider>(context, listen: false).currentUserID,
-    );
-    if (widget.currentTransaction != null)
-      _transaction.clone(widget.currentTransaction);
-
-    _selectedCategory = widget.currentTransaction != null
-        ? SelectRadio(index: widget.currentTransaction.isIncome ? 0 : 1)
-        : SelectRadio(index: 0);
+    _selectedCategory = SelectRadio(index: widget.transaction.isIncome ? 0 : 1);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    transactionName..focusNode.dispose()..controller.dispose();
-    transactionDescription..focusNode.dispose()..controller.dispose();
-    transactionAmount..focusNode.dispose()..controller.dispose();
-  }
-
-  Future<void> _saveForm(BuildContext context) async {
+  Future<void> onSaveForm(BuildContext context) async {
     final bool isValid = _formKey.currentState.validate();
-    if (!isValid) return;
+    if (!isValid) {
+      return;
+    }
 
     _formKey.currentState.save();
-
     setState(() => _isLoading = true);
 
     String snackBarMessage = "";
     try {
-      _transaction.setIsIncomeStatus =
+      widget.transaction.setIsIncomeStatus =
           _selectedCategory.index == 0 ? true : false;
 
-      if (widget.currentTransaction == null) {
-        await TransactionService.createTransaction(_transaction);
+      if (widget.context == "Add") {
+        await TransactionService.createTransaction(widget.transaction);
         snackBarMessage = "Transaction added successfully";
       } else {
-        await TransactionService.updateTransaction(_transaction);
+        await TransactionService.updateTransaction(widget.transaction);
         snackBarMessage = "Transaction updated successfully";
       }
     } catch (e) {
-      snackBarMessage = "Error occurs, please try again later";
+      snackBarMessage = e.toString();
     }
 
     setState(() => _isLoading = false);
@@ -108,86 +76,92 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.currentTransaction == null
-            ? Text("Add Transaction")
-            : Text("Edit Transaction"),
+        title: Text("${widget.context} Transaction"),
         actions: <Widget>[
           Builder(
-            builder: (context) => IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                _saveForm(context);
-              },
-            ),
-          )
+              builder: (context) => IconButton(
+                    icon: Icon(Icons.save),
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            onSaveForm(context);
+                          },
+                  ))
         ],
       ),
       backgroundColor: Theme.of(context).backgroundColor,
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15.0,
+                vertical: 10.0,
+              ),
               child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                        decoration: InputDecoration(
-                          labelText: transactionName.labelText,
-                        ),
-                        initialValue: transactionName.initialValue,
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) => FocusScope.of(context)
-                            .requestFocus(transactionDescription.focusNode),
-                        validator: (value) =>
-                            value.isEmpty ? "Name should not be empty" : null,
-                        onSaved: (value) => _transaction.setName = value,
-                      ),
+                          decoration: InputDecoration(
+                            labelText: widget.form.nameLabelText,
+                          ),
+                          initialValue: widget.transaction.name,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) => FocusScope.of(context)
+                              .requestFocus(widget.form.descriptionFocusNode),
+                          validator: (String value) =>
+                              value.isEmpty ? "Name should not be empty" : null,
+                          onSaved: (String value) {
+                            widget.transaction.setName = value;
+                          }),
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: transactionDescription.labelText,
+                          labelText: widget.form.descriptionLabelText,
                         ),
-                        initialValue: transactionDescription.initialValue,
+                        initialValue: widget.transaction.description,
                         keyboardType: TextInputType.multiline,
                         maxLines: 4,
-                        focusNode: transactionDescription.focusNode,
-                        onSaved: (value) => _transaction.setDescription = value,
+                        focusNode: widget.form.descriptionFocusNode,
+                        onSaved: (String value) =>
+                            widget.transaction.setDescription = value,
                       ),
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: transactionAmount.labelText,
+                          labelText: widget.form.amountLabelText,
                         ),
-                        initialValue: transactionAmount.initialValue,
+                        initialValue:
+                            widget.transaction.amount.toStringAsFixed(2),
                         keyboardType: TextInputType.number,
-                        focusNode: transactionAmount.focusNode,
-                        validator: (value) {
+                        focusNode: widget.form.amountFocusNode,
+                        validator: (String value) {
                           if (value.isEmpty)
                             return "Amount should not be empty";
                           if (double.tryParse(value) == null)
                             return "Amount should be a valid number";
                           if (double.tryParse(value) <= 0)
                             return "Amount should be greater than zero";
+
                           return null;
                         },
-                        onSaved: (value) =>
-                            _transaction.setAmount = double.parse(value),
+                        onSaved: (String value) =>
+                            widget.transaction.setAmount = double.parse(value),
                       ),
                       FormFieldTitle(text: "Transaction Date"),
                       DateFormButton(
-                        date: _transaction.date,
+                        date: widget.transaction.date,
                         onPressDateHandler: () async {
                           final DateTime newDate = await showDatePicker(
                             context: context,
-                            initialDate: _transaction.date,
+                            initialDate: widget.transaction.date,
                             firstDate: DateTime(1900),
                             lastDate: DateTime.now(),
                           );
                           if (newDate != null) {
                             setState(
-                              () => _transaction.setTransactionDate = newDate,
+                              () => widget.transaction.setTransactionDate =
+                                  newDate,
                             );
                           }
                         },
@@ -195,11 +169,12 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                           final TimeOfDay newTime = await showTimePicker(
                               context: context,
                               initialTime: TimeOfDay(
-                                  hour: _transaction.date.hour,
-                                  minute: _transaction.date.minute));
+                                  hour: widget.transaction.date.hour,
+                                  minute: widget.transaction.date.minute));
                           if (newTime != null) {
                             setState(
-                              () => _transaction.setTransactionTime = newTime,
+                              () => widget.transaction.setTransactionTime =
+                                  newTime,
                             );
                           }
                         },
@@ -208,8 +183,9 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                       DropdownButtonFormField(
                         hint: IconWithTextWidget(
                           child: IconWithText(
-                            text: _transaction.category,
-                            icon: transactionCategories[_transaction.category],
+                            text: widget.transaction.category,
+                            icon: transactionCategories[
+                                widget.transaction.category],
                           ),
                           marginWidth: 10.0,
                         ),
@@ -224,8 +200,8 @@ class _BalanceDetailScreenState extends State<BalanceDetailScreen> {
                                       marginWidth: 10.0),
                                 ))
                             .toList(),
-                        onChanged: (String e) {
-                          setState(() => _transaction.category = e);
+                        onChanged: (String c) {
+                          setState(() => widget.transaction.category = c);
                         },
                       ),
                       FormFieldTitle(text: "Status"),

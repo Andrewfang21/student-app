@@ -4,9 +4,9 @@ import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:intl/intl.dart";
 import "package:provider/provider.dart";
-import "package:student_app/screens/balance_detail_screen.dart";
-import "package:student_app/screens/balance_statistic_screen.dart";
-import "package:student_app/screens/balance_timeline_screen.dart";
+import "package:student_app/screens/transaction_edit_screen.dart";
+import "package:student_app/screens/transaction_statistic_screen.dart";
+import "package:student_app/screens/transaction_timeline_screen.dart";
 import "package:student_app/services/transaction_service.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/widgets/time_series_chart.dart";
@@ -15,10 +15,10 @@ import "package:student_app/models/transaction.dart";
 import "package:student_app/providers/user_provider.dart";
 import "package:student_app/utils.dart";
 
-class BalanceHomeScreen extends StatelessWidget {
+class TransactionHomeScreen extends StatelessWidget {
   final UserModel currentUser;
 
-  BalanceHomeScreen({
+  TransactionHomeScreen({
     @required this.currentUser,
   });
 
@@ -39,7 +39,7 @@ class BalanceHomeScreen extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  CustomizedAppBar(title: "Balance"),
+                  CustomizedAppBar(title: "Transaction"),
                   Container(
                     height: MediaQuery.of(context).size.height / 2,
                     child: Center(child: CircularProgressIndicator()),
@@ -55,8 +55,8 @@ class BalanceHomeScreen extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                CustomizedAppBar(title: "Balance"),
-                BalanceScreenHeader(
+                CustomizedAppBar(title: "Transaction"),
+                TransactionScreenHeader(
                   currentUser: currentUser,
                   transactions: transactions,
                 ),
@@ -83,7 +83,8 @@ class BalanceHomeScreen extends StatelessWidget {
                                 child: RaisedButton.icon(
                                   onPressed: () => Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (_) => BalanceTimelineScreen(),
+                                      builder: (_) =>
+                                          TransactionTimelineScreen(),
                                     ),
                                   ),
                                   icon: Icon(Icons.info_outline),
@@ -127,11 +128,11 @@ class BalanceHomeScreen extends StatelessWidget {
   }
 }
 
-class BalanceScreenHeader extends StatelessWidget {
+class TransactionScreenHeader extends StatelessWidget {
   final UserModel currentUser;
   final List<TransactionModel> transactions;
 
-  const BalanceScreenHeader({
+  const TransactionScreenHeader({
     @required this.currentUser,
     @required this.transactions,
   });
@@ -237,7 +238,7 @@ class BalanceScreenHeader extends StatelessWidget {
                         icon: Icon(Icons.chevron_right),
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => BalanceStatisticScreen(),
+                            builder: (_) => TransactionStatisticScreen(),
                           ),
                         ),
                       )
@@ -267,7 +268,7 @@ class TransactionCardCarousel extends StatelessWidget {
       child: GestureDetector(
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
-              BalanceDetailScreen(currentTransaction: transaction),
+              TransactionEditScreen(currentTransaction: transaction),
         )),
         child: Card(
           elevation: 2.0,

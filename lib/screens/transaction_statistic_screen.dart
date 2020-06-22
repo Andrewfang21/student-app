@@ -9,12 +9,14 @@ import "package:student_app/providers/user_provider.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/utils.dart";
 
-class BalanceStatisticScreen extends StatefulWidget {
+class TransactionStatisticScreen extends StatefulWidget {
   @override
-  _BalanceStatisticScreenState createState() => _BalanceStatisticScreenState();
+  _TransactionStatisticScreenState createState() =>
+      _TransactionStatisticScreenState();
 }
 
-class _BalanceStatisticScreenState extends State<BalanceStatisticScreen> {
+class _TransactionStatisticScreenState
+    extends State<TransactionStatisticScreen> {
   final RangeDate _currentRangeDate = RangeDate(DateTime.now());
 
   String formatDate(DateTime date) {

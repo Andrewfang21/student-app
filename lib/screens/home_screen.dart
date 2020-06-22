@@ -3,10 +3,10 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:student_app/providers/app_state_provider.dart";
 import "package:student_app/providers/user_provider.dart";
-import "package:student_app/screens/balance_detail_screen.dart";
-import "package:student_app/screens/balance_home_screen.dart";
-import "package:student_app/screens/create_schedule_screen.dart";
-import "package:student_app/screens/schedule_home_screen.dart";
+import "package:student_app/screens/transaction_create_screen.dart";
+import "package:student_app/screens/transaction_home_screen.dart";
+import "package:student_app/screens/task_create_screen.dart";
+import "package:student_app/screens/task_home_screen.dart";
 import "package:student_app/services/user_shared_preference.dart";
 import "package:student_app/models/user.dart";
 import "package:student_app/utils.dart";
@@ -66,33 +66,33 @@ class _HomeScreenState extends State<HomeScreen> {
       ListTile(
         title: Text(
           "Balance",
-          style: isSame(activePageName, PageName.Balance.toString())
+          style: isSame(activePageName, PageName.Transaction.toString())
               ? TextStyle(fontWeight: FontWeight.bold)
               : null,
         ),
         dense: true,
         leading: const Icon(Icons.account_balance_wallet),
-        selected: isSame(activePageName, PageName.Balance.toString()),
+        selected: isSame(activePageName, PageName.Transaction.toString()),
         onTap: () {
-          if (activePageName != "Balance")
-            appState.activePageName = PageName.Balance.toString();
+          if (activePageName != "Transaction")
+            appState.activePageName = PageName.Transaction.toString();
           Navigator.of(context).pop();
         },
       ),
       Divider(),
       ListTile(
         title: Text(
-          "Schedule",
-          style: isSame(activePageName, PageName.Schedule.toString())
+          "Task",
+          style: isSame(activePageName, PageName.Task.toString())
               ? TextStyle(fontWeight: FontWeight.bold)
               : null,
         ),
         dense: true,
         leading: const Icon(Icons.calendar_today),
-        selected: isSame(activePageName, PageName.Schedule.toString()),
+        selected: isSame(activePageName, PageName.Task.toString()),
         onTap: () {
-          if (activePageName != "Schedule")
-            appState.activePageName = PageName.Schedule.toString();
+          if (activePageName != "Task")
+            appState.activePageName = PageName.Task.toString();
           Navigator.of(context).pop();
         },
       ),
@@ -119,8 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return FloatingActionButton(
       onPressed: () => Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => activePageName == "Balance"
-            ? BalanceDetailScreen()
-            : CreateScheduleScreen(),
+            ? TransactionCreateScreen()
+            : TaskCreateScreen(),
       )),
       child: Icon(Icons.add),
     );
@@ -152,9 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       child: Builder(
-        builder: isSame(_activePageName, PageName.Balance.toString())
-            ? (context) => BalanceHomeScreen(currentUser: currentUser)
-            : (context) => ScheduleScreen(),
+        builder: isSame(_activePageName, PageName.Transaction.toString())
+            ? (context) => TransactionHomeScreen(currentUser: currentUser)
+            : (context) => TaskScreen(),
       ),
     );
   }

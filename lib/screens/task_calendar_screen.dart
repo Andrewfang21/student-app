@@ -5,13 +5,13 @@ import "package:table_calendar/table_calendar.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:student_app/models/task.dart";
 import "package:student_app/providers/user_provider.dart";
-import "package:student_app/screens/schedule_detail_screen.dart";
+import "package:student_app/screens/task_detail_screen.dart";
 import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/task_card.dart";
 import "package:student_app/widgets/timeline_widget.dart";
 import "package:student_app/utils.dart";
 
-class ScheduleCalendarScreen extends StatelessWidget {
+class TaskCalendarScreen extends StatelessWidget {
   Map<DateTime, List<dynamic>> _groupTasks(List<dynamic> allTasks) {
     Map<DateTime, List<dynamic>> data = {};
     allTasks.forEach((task) {
@@ -141,7 +141,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                     TimelineCard(
                       onTapHandler: () =>
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => ScheduleDetailScreen(
+                              builder: (_) => TaskDetailScreen(
                                     task: task,
                                     allowEdit: false,
                                   ))),
