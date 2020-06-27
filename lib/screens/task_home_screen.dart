@@ -8,7 +8,6 @@ import "package:student_app/models/task.dart";
 import "package:student_app/screens/task_calendar_screen.dart";
 import "package:student_app/screens/task_detail_screen.dart";
 import "package:student_app/screens/task_list_screen.dart";
-import "package:student_app/screens/task_setting_screen.dart";
 import "package:student_app/services/task_service.dart";
 import "package:student_app/widgets/customized_app_bar.dart";
 import "package:student_app/providers/user_provider.dart";
@@ -380,17 +379,6 @@ class _TitleCardState extends State<TitleCard> {
                         MaterialPageRoute(builder: (_) => TaskCalendarScreen()),
                       ),
                     ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.bottomCenter,
-                      icon: Icon(
-                        Icons.settings,
-                        color: Colors.grey[100],
-                      ),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => TaskSettingScreen()),
-                      ),
-                    )
                   ],
                 ),
               ],

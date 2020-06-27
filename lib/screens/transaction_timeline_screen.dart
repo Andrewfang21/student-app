@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:timeline_list/timeline_model.dart";
 import "package:provider/provider.dart";
-import "package:student_app/screens/transaction_detail_screen.dart";
+import "package:student_app/screens/transaction_edit_screen.dart";
 import "package:student_app/services/transaction_service.dart";
 import "package:student_app/models/transaction.dart";
 import "package:student_app/providers/user_provider.dart";
@@ -51,11 +51,11 @@ class TransactionTimelineScreen extends StatelessWidget {
 
                       return TimelineModel(
                         TimelineCard(
-                          onTapHandler: () => print("pushed"),
-                          // Navigator.of(context).push(MaterialPageRoute(
-                          //     builder: (_) => TransactionDetailScreen(
-                          //           currentTransaction: transaction,
-                          //         ))),
+                          onTapHandler: () =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => TransactionEditScreen(
+                                        currentTransaction: transaction,
+                                      ))),
                           onLongPressHandler: () => showDialog(
                             context: context,
                             builder: (_) => AlertDialog(

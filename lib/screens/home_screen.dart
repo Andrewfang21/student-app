@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FloatingActionButton customizedFloatingActionButton(String activePageName) {
     return FloatingActionButton(
       onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => activePageName == "Balance"
+        builder: (_) => activePageName == "Transaction"
             ? TransactionCreateScreen()
             : TaskCreateScreen(),
       )),

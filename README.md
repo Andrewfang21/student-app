@@ -16,7 +16,6 @@ An application for students to help them in managing their daily schedules and e
 
 - [x] Authentication using google sign in firebase
 - [x] CRUD TODO List
-- [ ] Push Notifications to remind their upcoming tasks
 - [x] Calendars
 - [x] CRUD List of Expenses
 - [x] Analytics and Charts Visualization of their expenses
